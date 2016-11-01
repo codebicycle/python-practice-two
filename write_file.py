@@ -40,20 +40,29 @@ a,b,c,d
 1,2,3,4
 
 """
+from abc import ABC, abstractmethod
 from datetime import datetime
 
-class WriteFile:
-    # TODO abstract class
+class WriteFile(ABC):
+
+    @abstractmethod
+    def write(self):
+        return
+
     def __init__(self, filename):
         self.filename = filename
+
+    def _write_line(self, line):
+        with open(self.filename, 'a') as f:
+            f.write(line + '\n')
 
 
 class LogFile(WriteFile):
 
     def write(self, message):
-        with open(self.filename, 'a') as f:
-            now = datetime.now()
-            f.write("{:%Y-%m-%d %H:%M}\t{}\n".format(now, message))
+        now = datetime.now()
+        line = "{:%Y-%m-%d %H:%M}\t{}".format(now, message)
+        self._write_line(line)
 
 
 class DelimFile(WriteFile):
@@ -66,10 +75,8 @@ class DelimFile(WriteFile):
         values = list(map(
             (lambda val: '"{}"'.format(val) if self.delimiter in val else val),
             values))
-
-        with open(self.filename, 'a') as f:
-            line = self.delimiter.join(values)
-            f.write("{}\n".format(line))
+        line = self.delimiter.join(values)
+        self._write_line(line)
 
 
 def main():
