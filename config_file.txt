@@ -1,0 +1,3 @@
+num_retries=5
+sql_query=SELECT this FROM that WHERE condition
+email_to=me@mydomain.com
