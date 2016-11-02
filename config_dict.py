@@ -20,6 +20,17 @@ class ConfigDict(dict):
     def __setitem__(self, key, value):
 
         dict.__setitem__(self, key, value)
+        self._write_current_dict_to_file()
+
+
+    def __delitem__(self, key):
+
+        dict.__delitem__(self, key)
+        self._write_current_dict_to_file()
+
+
+    def _write_current_dict_to_file(self):
+
         with open(self._filepath, 'w') as f:
             it = ('{}={}\n'.format(key, value) for key, value in self.items())
             f.writelines(it)
