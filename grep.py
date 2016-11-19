@@ -20,15 +20,15 @@ def grep_file(filename, search_regex):
                 print('{}:{}:{}'.format(filename, line_nr+1, line.strip()))
 
 
-def matching_files(file):
-    # Treat FILE as pattern (*.txt)
+def matching_files(file_pattern):
     # Convert a shell-style pattern to a regular expression
-    regex_file_pattern = fnmatch.translate(file)
+    regex_file_pattern = fnmatch.translate(file_pattern)
     file_regex = re.compile(regex_file_pattern)
 
-    files = [filename
-             for filename in os.listdir('.')
-             if file_regex.match(filename)]
+    files = [file.name
+             for file in os.scandir('.')
+             if file.is_file()
+             and file_regex.match(file.name)]
     return files
 
 
