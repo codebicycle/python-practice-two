@@ -1,7 +1,7 @@
 """
 find.py unix find-like utility
 
-Usage: find.py DIRECTORY -name PATTERN
+Usage: find.py DIRECTORY PATTERN
 
 """
 import os
@@ -17,7 +17,7 @@ def test_basic(tmpdir):
     tmpdir.join('not-a-text-file').write(b'12345678', 'wb')
 
     find_filepath = os.path.join(HERE, 'find.py')
-    completed_process = subprocess.run([find_filepath, '.', '-name', '*.txt'],
+    completed_process = subprocess.run([find_filepath, '.', '*.txt'],
                                        stdout=subprocess.PIPE)
     output = completed_process.stdout
 

@@ -3,7 +3,7 @@
 """
 find.py unix find-like utility
 
-Usage: find.py DIRECTORY -name PATTERN
+Usage: find.py DIRECTORY PATTERN
 
 """
 import os
@@ -16,7 +16,7 @@ from fnmatch import fnmatch
 
 def main():
     start = sys.argv[1]
-    pattern = sys.argv[3]
+    pattern = sys.argv[2]
 
     for dirpath, dirnames, filenames in os.walk(start):
         for filename in filenames:
