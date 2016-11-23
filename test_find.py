@@ -17,7 +17,9 @@ def test_basic(tmpdir):
     tmpdir.join('not-a-text-file').write(b'12345678', 'wb')
 
     find_filepath = os.path.join(HERE, 'find.py')
-    completed_process = subprocess.run([find_filepath, '.', '*.txt'],
+    start_folder = '.'
+    pattern = '*.txt'
+    completed_process = subprocess.run([find_filepath, start_folder, pattern],
                                        stdout=subprocess.PIPE)
     output = completed_process.stdout
 

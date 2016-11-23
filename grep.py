@@ -25,6 +25,7 @@ def main():
     shell_file_pattern = sys.argv[2]
 
     files = find_files('.', shell_pattern=shell_file_pattern)
+
     for filename in files:
         grep_file(filename, search_regex)
 
