@@ -9,6 +9,8 @@ class Card:
         'C': '♣',
         'S': '♠',
     }
+    RANKS = '2 3 4 5 6 7 8 9 10 J Q K A'.split()
+    SUITS = 'H D C S'.split()
 
     def __init__(self, rank_suit):
         rank_suit = rank_suit.strip()
@@ -29,13 +31,12 @@ class Card:
         return '{:>2}{}'.format(self.rank, self.SUIT_DICT[self.suit])
 
     def rank_value(self):
-        ranks = '2 3 4 5 6 7 8 9 10 J Q K A'.split()
-        return ranks.index(self.rank) + 2
+        return self.RANKS.index(self.rank) + 2
 
 
 def create_deck():
-    ranks = '2 3 4 5 6 7 8 9 10 J Q K A'.split()
-    suits = 'H D C S'.split()
+    ranks = Card.RANKS
+    suits = Card.SUITS
 
     return [Card.from_touple(r, s) for r in ranks for s in suits]
 
