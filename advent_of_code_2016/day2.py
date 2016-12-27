@@ -29,17 +29,52 @@ So, in this example, the bathroom code is 1985.
 
 Your puzzle input is the instructions from the document you found at the front desk. What is the bathroom code?
 
+
+--- Part Two ---
+
+You finally arrive at the bathroom (it's a several minute walk from the lobby so visitors can behold the many fancy conference rooms and water coolers on this floor) and go to punch in the code. Much to your bladder's dismay, the keypad is not at all like you imagined it. Instead, you are confronted with the result of hundreds of man-hours of bathroom-keypad-design meetings:
+
+    1
+  2 3 4
+5 6 7 8 9
+  A B C
+    D
+
+You still start at "5" and stop when you're at an edge, but given the same instructions as above, the outcome is very different:
+
+    You start at "5" and don't move at all (up and left are both edges), ending at 5.
+    Continuing from "5", you move right twice and down three times (through "6", "7", "B", "D", "D"), ending at D.
+    Then, from "D", you move five more times (through "D", "B", "C", "C", "B"), ending at B.
+    Finally, after five more moves, you end at 3.
+
+So, given the actual keypad layout, the code would be 5DB3.
+
+Using the same instructions in your puzzle input, what is the correct bathroom code?
+
 """
 
-KEYPAD = [[1, 2, 3],
-          [4, 5, 6],
-          [7, 8, 9]]
-
+# origin top-left, (y, x)
 DIRECTIONS = {
-    'u': (0, -1),
-    'r': (1, 0),
-    'd': (0, 1),
-    'l': (-1, 0)
+    'u': (-1, 0),   # up
+    'r': (0, 1),    # right
+    'd': (1, 0),    # down
+    'l': (0, -1),   # left
+}
+
+KEYPAD_CLASSIC = {
+    (0, 0): 1, (0, 1): 2, (0, 2): 3,
+    (1, 0): 4, (1, 1): 5, (1, 2): 6,
+    (2, 0): 7, (2, 1): 8, (2, 2): 9,
+    'start': (1, 1),
+}
+
+KEYPAD_DIAMOND = {
+                          (0, 2): 1,
+               (1, 1): 2, (1, 2): 3, (1, 3): 4,
+    (2, 0): 5, (2, 1): 6, (2, 2): 7, (2, 3): 8, (2, 4): 9,
+             (3, 1): 'A', (3, 2): 'B', (3, 3): 'C',
+                          (4, 2): 'D',
+    'start': (2, 0),
 }
 
 
@@ -47,44 +82,38 @@ def add_tuples(tuple_one, tuple_two):
     return tuple(x + y for x, y in zip(tuple_one, tuple_two))
 
 
-def get_code(indications):
-    start = (1, 1)
+def get_code(indications, keypad):
+    start = keypad['start']
     code = []
     for row in indications.split():
-        digit, start = get_digit(start, row)
-        code.append(digit)
+        char, start = get_char(start, row, keypad)
+        code.append(char)
 
-    return ''.join(str(digit) for digit in code)
+    return ''.join(str(item) for item in code)
 
 
-def get_digit(start, row):
+def get_char(start, row, keypad):
     for direction in row.lower():
-        start = move(start, DIRECTIONS[direction])
+        start = move(start, DIRECTIONS[direction], keypad)
     x, y = coordinates = start
-    return KEYPAD[y][x], coordinates
+    return keypad[x, y], coordinates
 
 
-def move(start, direction):
-    x, y = add_tuples(start, direction)
-
-    if x < 0:
-        x = 0
-    elif x > 2:
-        x = 2
-
-    if y < 0:
-        y = 0
-    elif y > 2:
-        y = 2
-
-    return x, y
+def move(start, direction, keypad):
+    new_location = add_tuples(start, direction)
+    if new_location not in keypad:
+        new_location = start
+    return new_location
 
 
 def main():
     with open('input2.txt', 'r') as f:
         indications = f.read()
 
-    code = get_code(indications)
+    code = get_code(indications, KEYPAD_CLASSIC)
+    print(code)
+
+    code = get_code(indications, KEYPAD_DIAMOND)
     print(code)
 
 
