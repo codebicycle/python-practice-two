@@ -19,11 +19,29 @@ For example:
 
 How many blocks away is Easter Bunny HQ?
 
+--- Part Two ---
+
+Then, you notice the instructions continue on the back of the Recruiting Document. Easter Bunny HQ is actually at the first location you visit twice.
+
+For example, if your instructions are R8, R4, R4, R8, the first location you visit twice is 4 blocks away, due East.
+
+How many blocks away is the first location you visit twice?
+
 """
 
 
 def add_elements(tuple_a, tuple_b):
     return tuple(a + b for a, b in zip(tuple_a, tuple_b))
+
+
+def get_first_duplicate(locations):
+    no_duplicates = set()
+    length = 0
+    for location in locations:
+        no_duplicates.add(location)
+        length += 1
+        if len(no_duplicates) != length:
+            return location
 
 
 class Turtle:
@@ -61,11 +79,19 @@ class Turtle:
             direction, length = parse(indication)
             self.move(direction, length)
 
-    def get_distance_traveled(self, start=(0, 0)):
+    def get_distance(self, start=(0, 0), end=None):
+        if end is None:
+            end = self.location
         x1, y1 = start
-        x2, y2 = self.location
+        x2, y2 = end
         distance = abs(x2 - x1) + abs(y2 - y1)
         return distance
+
+    def get_distance_first_visit_twice(self):
+        first_location_visited_twice = get_first_duplicate(self.path)
+        if first_location_visited_twice:
+            distance = self.get_distance(end=first_location_visited_twice)
+            return distance
 
 
 def parse(indication):
@@ -86,8 +112,11 @@ def main():
     turtle = Turtle()
     turtle.travel(raw_indications)
 
-    distance_from_start = turtle.get_distance_traveled()
-    print(distance_from_start)
+    distance_traveled = turtle.get_distance()
+    print(distance_traveled)
+
+    distance_to_first_visit_twice = turtle.get_distance_first_visit_twice()
+    print(distance_to_first_visit_twice)
 
 
 if __name__ == '__main__':
