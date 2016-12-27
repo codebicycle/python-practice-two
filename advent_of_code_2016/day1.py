@@ -20,21 +20,52 @@ For example:
 How many blocks away is Easter Bunny HQ?
 
 """
-import collections
 
 
-def turn(facing, direction):
-    compass = {
-        'n': {'r': 'e',
-              'l': 'w'},
-        'e': {'r': 's',
-              'l': 'n'},
-        's': {'r': 'w',
-              'l': 'e'},
-        'w': {'r': 'n',
-              'l': 's'},
-    }
-    return compass[facing][direction]
+def add_elements(tuple_a, tuple_b):
+    return tuple(a + b for a, b in zip(tuple_a, tuple_b))
+
+
+class Turtle:
+    NORTH = 0
+    EAST = 1
+    SOUTH = 2
+    WEST = 3
+
+    DIRECTION = ((0, 1), (1, 0), (0, -1), (-1, 0))
+
+    def __init__(self):
+        self.facing = self.NORTH
+        self.location = (0, 0)
+        self.path = []
+
+    def move(self, direction, length):
+        self.turn(direction)
+        vector = self.DIRECTION[self.facing]
+        for step in range(length):
+            self.location = add_elements(self.location, vector)
+            self.path.append(self.location)
+
+    def turn(self, direction):
+        if direction == 'l':
+            self.facing = (self.facing - 1) % 4
+        elif direction == 'r':
+            self.facing = (self.facing + 1) % 4
+        else:
+            raise ValueError(
+                "Bad direction {}, expected 'l' or 'r'".format(direction))
+
+    def travel(self, raw_indications):
+        indications = prepare(raw_indications)
+        for indication in indications:
+            direction, length = parse(indication)
+            self.move(direction, length)
+
+    def get_distance_traveled(self, start=(0, 0)):
+        x1, y1 = start
+        x2, y2 = self.location
+        distance = abs(x2 - x1) + abs(y2 - y1)
+        return distance
 
 
 def parse(indication):
@@ -43,31 +74,20 @@ def parse(indication):
     return direction, length
 
 
-def get_distance(raw_indications):
-    orientation = 'n'
-    traveled = collections.defaultdict(int)
-    indications = [indication.strip()
-                   for indication in raw_indications.split(',')]
-
-    for indication in indications:
-        direction, length = parse(indication)
-        orientation = turn(orientation, direction)
-        traveled[orientation] += length
-
-    north = traveled['n']
-    east = traveled['e']
-    south = traveled['s']
-    west = traveled['w']
-    distance = abs(north - south) + abs(east - west)
-    return distance
+def prepare(raw_indications):
+    return [indication.strip()
+            for indication in raw_indications.split(',')]
 
 
 def main():
     with open('input1.txt', 'r') as f:
-        indications = f.read()
+        raw_indications = f.read()
 
-    distance = get_distance(indications)
-    print(distance)
+    turtle = Turtle()
+    turtle.travel(raw_indications)
+
+    distance_from_start = turtle.get_distance_traveled()
+    print(distance_from_start)
 
 
 if __name__ == '__main__':
