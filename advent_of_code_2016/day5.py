@@ -19,35 +19,79 @@ Given the actual Door ID, what is the password?
 
 Your puzzle input is ugkcyxxp.
 
+--- Part Two ---
+
+As the door slides open, you are presented with a second door that uses a slightly more inspired security mechanism. Clearly unimpressed by the last version (in what movie is the password decrypted in order?!), the Easter Bunny engineers have worked out a better solution.
+
+Instead of simply filling in the password from left to right, the hash now also indicates the position within the password to fill. You still look for hashes that begin with five zeroes; however, now, the sixth character represents the position (0-7), and the seventh character is the character to put in that position.
+
+A hash result of 000001f means that f is the second character in the password. Use only the first result for each position, and ignore invalid positions.
+
+For example, if the Door ID is abc:
+
+    The first interesting hash is from abc3231929, which produces 0000015...; so, 5 goes in position 1: _5______.
+    In the previous method, 5017308 produced an interesting hash; however, it is ignored, because it specifies an invalid position (8).
+    The second interesting hash is at index 5357525, which produces 000004e...; so, e goes in position 4: _5__e___.
+
+You almost choke on your popcorn as the final character falls into place, producing the password 05ace8e3.
+
+Given the actual Door ID and this new method, what is the password? Be extra proud of your solution if it uses a cinematic "decrypting" animation.
+
+Your puzzle input is still ugkcyxxp.
+
 """
 
 import hashlib
 import itertools
 import re
 
-FIVE_ZEROES = re.compile('^00000([0-9A-Fa-f])')
+ZEROES_CHAR = re.compile('^00000([0-9A-Fa-f])')
+ZEROES_POSITION_CHAR = re.compile('^00000([0-7])([0-9A-Fa-f])')
 
 
-def generate_password(door_id):
-    password = []
+def update_sequential(md5, password):
+    match = ZEROES_CHAR.match(md5)
+    if match:
+        char = match.group(1)
+        idx = password.index(None)
+        password[idx] = char
+        return True
+    return False
+
+
+def update_random(md5, password):
+    match = ZEROES_POSITION_CHAR.match(md5)
+    if match:
+        position = int(match.group(1))
+        char = match.group(2)
+        if password[position] is None:
+            password[position] = char
+            return True
+    return False
+
+
+def generate_password(door_id, update_cb=update_sequential):
     integers = itertools.count()
+    password = [None] * 8
     for nr in integers:
         candidate = door_id + str(nr)
         candidate = bytes(candidate, 'utf8')
         md5 = hashlib.md5(candidate).hexdigest()
-        match = FIVE_ZEROES.match(md5)
-        if match:
-            char = match.group(1)
-            password.append(char)
+        char_found = update_cb(md5, password)
+        if char_found:
             print(password, str(nr))
-            if len(password) >= 8:
+            if password.count(None) == 0:
                 break
     return ''.join(password)
 
 
 def main():
     door_id = 'ugkcyxxp'
-    password = generate_password(door_id)
+
+    password = generate_password(door_id, update_cb=update_sequential)
+    print(password)
+
+    password = generate_password(door_id, update_cb=update_random)
     print(password)
 
 
