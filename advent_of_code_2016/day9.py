@@ -126,6 +126,23 @@ def expand_representation(array):
     return hold
 
 
+def calculate_message_length(content):
+    size = 0
+    match = MARKER.search(content)
+    if match:
+        length = int(match.group(1))
+        multiplier = int(match.group(2))
+        start = match.start()
+        end = match.end()
+
+        size += len(content[:start])
+        size += multiplier * calculate_message_length(content[end: end+length])
+        size += calculate_message_length(content[end+length:])
+    else:
+        size += len(content)
+    return size
+
+
 def main():
     with open('input9.txt', 'r') as f:
         content = f.read().strip()
@@ -134,9 +151,13 @@ def main():
     length = len(message)
     print(length)
 
+    # # WARNING: Unresponsive code! Too slow for the input size
     # message, length = decode_deep(content)
     # print(message[:255])
     # print(length)
+
+    length = calculate_message_length(content)
+    print(length)
 
 if __name__ == '__main__':
     main()
