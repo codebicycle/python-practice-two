@@ -115,8 +115,9 @@ In this arrangement, it takes 11 steps to collect all of the objects at the four
 In your situation, what is the minimum number of steps required to bring all of the objects to the fourth floor?
 
 """
-from itertools import combinations
 from pprint import pprint
+
+import itertools
 
 FAIL = []
 
@@ -137,23 +138,31 @@ def is_goal(state):
             and len(state[3]) != 0 and elevator == 3)
 
 
-def is_valid_group(group):
-    x, y = group
-    if (x[0] != y[0] and
-            any(element[1] == 'G' for element in group) and
-            any(element[1] == 'M' for element in group)):
-        return False
-    return True
-
-
 def successors(state):
     successors = {}
     elevator = state[-1]
     current_floor = state[elevator]
-    groups = [(x, y)
-              for x in current_floor
-              for y in current_floor]
-              # if is_valid_group((x, y))]
+    groups = list(itertools.combinations(current_floor, 2))
+
+    # generator, microchip pair
+    pairs = [(x, y)
+             for (x, y) in groups
+             if x[0] == y[0] and x[1] != y[1]]
+
+    # Optimisation, keep only one pair
+    if len(pairs) > 1:
+        first_x, first_y = pairs[0]
+        pair_elements = [element
+                         for pair in pairs
+                         for element in pair]
+
+        redux = set(current_floor) - set(pair_elements)
+        redux.add(first_x)
+        redux.add(first_y)
+        groups = list(itertools.combinations(redux, 2))
+        groups += list(itertools.combinations(redux, 1))
+    else:
+        groups += list(itertools.combinations(current_floor, 1))
 
     directions = []
     if elevator + 1 < 4:
@@ -221,7 +230,7 @@ def main():
     # print('\nSteps:', steps)
 
 
-    # Input file
+    # # Input file
     start = (
         ('SG', 'SM', 'PG', 'PM'),
         ('TG', 'RG', 'RM', 'CG', 'CM'),
@@ -235,6 +244,22 @@ def main():
 
     steps = len(path) // 2
     print('\nSteps:', steps)
+
+
+    # # Part 2
+    # start = (
+    #     ('SG', 'SM', 'PG', 'PM', 'EG', 'EM', 'DG', 'DM'),
+    #     ('TG', 'RG', 'RM', 'CG', 'CM'),
+    #     ('TM',),
+    #     tuple(),
+    #     0
+    # )
+    #
+    # path = shortest_path_search(start, successors, is_goal)
+    # pprint(path)
+    #
+    # steps = len(path) // 2
+    # print('\nSteps:', steps)
 
 
 if __name__ == '__main__':
