@@ -86,5 +86,16 @@ def main():
     follow_instructions(lines, registers)
     print(registers)
 
+    registers_two = {
+        'a': 0,
+        'b': 0,
+        'c': 1,
+        'd': 0,
+    }
+
+    follow_instructions(lines, registers_two)
+    print(registers_two)
+
+
 if __name__ == '__main__':
     main()
