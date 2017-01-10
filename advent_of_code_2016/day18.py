@@ -51,6 +51,10 @@ In ten rows, this larger example has 38 safe tiles.
 
 Starting with the map in your puzzle input, in a total of 40 rows (including the starting row), how many safe tiles are there?
 
+--- Part Two ---
+
+How many safe tiles are there in a total of 400000 rows?
+
 """
 TRAP = '^'
 SAFE = '.'
@@ -90,11 +94,20 @@ def count_safe_tiles(rows):
 
 def generate_room(first_row, total_rows):
     rows = [first_row]
-    for _ in range(total_rows - 1):
+    index = 0
+    uniques = {first_row: index}
+    while len(rows) < total_rows:
+        index += 1
         old_row = rows[-1]
         new_row = generate_row(old_row)
         rows.append(new_row)
-    return rows
+
+        if new_row in uniques:
+            first_sight = uniques[new_row]
+            rows.extend(rows[first_sight:index])
+        else:
+            uniques[new_row] = index
+    return rows[:total_rows]
 
 
 def main():
@@ -102,6 +115,13 @@ def main():
         first_row = f.read().strip()
 
     total_rows = 40
+    rows = generate_room(first_row, total_rows)
+
+    safe_tiles = count_safe_tiles(rows)
+    print(safe_tiles)
+
+    # Part 2
+    total_rows = 400000
     rows = generate_room(first_row, total_rows)
 
     safe_tiles = count_safe_tiles(rows)
