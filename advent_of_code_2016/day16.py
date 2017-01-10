@@ -83,6 +83,18 @@ def dragon_curve_helper(string):
     return a + '0' + b
 
 
+def swap(char):
+    return '1' if char == '0' else '0'
+
+
+def dragon_curve_helper2(string):
+    a = list(string)
+    b = [swap(x) for x in a[::-1]]
+    a.append('0')
+    a.extend(b)
+    return ''.join(a)
+
+
 def checksum_helper(string):
     partitions = partition(string, 2)
     checksum = []
