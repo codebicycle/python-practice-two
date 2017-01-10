@@ -38,6 +38,10 @@ What is the fewest number of steps required for you to reach 31,39?
 
 Your puzzle input is 1362.
 
+--- Part Two ---
+
+How many locations (distinct x,y coordinates, including your starting location) can you reach in at most 50 steps?
+
 """
 
 FAIL = []
@@ -88,8 +92,25 @@ def search_path(start, successors, is_goal):
     return FAIL
 
 
+def reachable(start, successors, max_steps):
+    explored = {start}
+    frontier = [[start]]
+    steps = 0
+    while frontier and steps < max_steps:
+        steps += 1
+        ring = frontier.pop(0)
+        newring = []
+        for current_cell in ring:
+            for newcell in successors(current_cell):
+                if newcell not in explored:
+                    explored.add(newcell)
+                    newring.append(newcell)
+        frontier.append(newring)
+    return explored
+
+
 class Cell:
-    puzzle_input = 1362
+    puzzle_input = 10
 
     def __init__(self, x, y):
         self.x = x
@@ -128,6 +149,13 @@ def main():
 
     print(path)
     print('Length:', length)
+    print()
+
+    max_steps = 50
+    explored = reachable(start, successors, max_steps)
+    nr_locations = len(explored)
+    print(explored)
+    print('Reachable locations: {} ({} steps)'.format(nr_locations, max_steps))
 
 
 if __name__ == '__main__':
