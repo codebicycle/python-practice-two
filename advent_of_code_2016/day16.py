@@ -51,6 +51,10 @@ The first disk you have to fill has length 272. Using the initial state in your 
 
 Your puzzle input is 01111010110010011.
 
+--- Part Two ---
+
+The second disk you have to fill has length 35651584. Again using the initial state in your puzzle input, what is the correct checksum for this disk?
+
 """
 
 
@@ -105,6 +109,13 @@ def main():
 
     data = dragon_curve(puzzle_input, disk_size)
     disk_data = data[:disk_size]
+    checksum = get_checksum(disk_data)
+    print(checksum)
+
+    # Part 2
+    disk_two_size = 35651584
+    data = dragon_curve(puzzle_input, disk_two_size)
+    disk_data = data[:disk_two_size]
     checksum = get_checksum(disk_data)
     print(checksum)
 
