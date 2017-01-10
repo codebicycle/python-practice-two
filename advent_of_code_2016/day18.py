@@ -61,15 +61,10 @@ SAFE = '.'
 
 
 def generate_tile(context):
-    if tuple(context) == (TRAP, TRAP, SAFE):
-        return TRAP
-    if tuple(context) == (SAFE, TRAP, TRAP):
-        return TRAP
-    if tuple(context) == (TRAP, SAFE, SAFE):
-        return TRAP
-    if tuple(context) == (SAFE, SAFE, TRAP):
-        return TRAP
-    return SAFE
+    left, right = context
+    if left == right:
+        return SAFE
+    return TRAP
 
 
 def generate_row(old_row):
@@ -77,15 +72,16 @@ def generate_row(old_row):
     length = len(old_row)
     for i in range(length):
         if i == 0:
-            context = '.' + old_row[i:i+2]
+            # context = left, right
+            context = ('.', old_row[i+1])
         elif i == length - 1:
-            context = old_row[i-1:i+1] + '.'
+            context = (old_row[i-1], '.')
         else:
-            context = old_row[i-1:i+2]
+            context = (old_row[i-1], old_row[i+1])
 
         tile = generate_tile(context)
         new_row.append(tile)
-    return ''.join(new_row)
+    return new_row
 
 
 def count_safe_tiles(rows):
@@ -93,21 +89,14 @@ def count_safe_tiles(rows):
 
 
 def generate_room(first_row, total_rows):
+    first_row = list(first_row)
     rows = [first_row]
-    index = 0
-    uniques = {first_row: index}
     while len(rows) < total_rows:
-        index += 1
         old_row = rows[-1]
         new_row = generate_row(old_row)
         rows.append(new_row)
 
-        if new_row in uniques:
-            first_sight = uniques[new_row]
-            rows.extend(rows[first_sight:index])
-        else:
-            uniques[new_row] = index
-    return rows[:total_rows]
+    return rows
 
 
 def main():
