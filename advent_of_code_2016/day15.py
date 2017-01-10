@@ -24,6 +24,14 @@ If, however, you wait until time=5 to push the button, then when the capsule rea
 
 However, your situation has more than two discs; you've noted their positions in your puzzle input. What is the first time you can press the button to get a capsule?
 
+--- Part Two ---
+
+After getting the first capsule (it contained a star! what great fortune!), the machine detects your success and begins to rearrange itself.
+
+When it's done, the discs are back in their original configuration as if it were time=0 again, but a new disc with 11 positions and starting at position 0 has appeared exactly one second below the previously-bottom disc.
+
+With this new disc, and counting again starting from time=0 with the configuration in your puzzle input, what is the first time you can press the button to get another capsule?
+
 """
 import re
 import collections
@@ -33,21 +41,21 @@ RE = re.compile(r'(\d+) positions.*position (\d+)')
 
 
 def parse(lines):
-    Disk = collections.namedtuple('Disk', 'time, length, initial')
+    Disk = collections.namedtuple('Disk', 'length, initial')
     disks = []
-    for time, line in enumerate(lines, start=1):
+    for line in lines:
         match = RE.search(line)
         assert match
         length = int(match.group(1))
         initial = int(match.group(2))
-        disks.append(Disk(time, length, initial))
+        disks.append(Disk(length, initial))
     return disks
 
 
 def is_synchronised(start_time, disks):
     total = 0
-    for disk in disks:
-        total += (start_time + disk.time + disk.initial) % disk.length
+    for disk_time, disk in enumerate(disks, start=1):
+        total += (start_time + disk_time + disk.initial) % disk.length
     return total == 0
 
 
@@ -62,6 +70,13 @@ def main():
         lines = f.readlines()
 
     disks = parse(lines)
+    start_time = get_start_time(disks)
+    print(start_time)
+
+    # Part 2
+    Disk = collections.namedtuple('Disk', 'length, initial')
+    new_disk = Disk(11, 0)
+    disks.append(new_disk)
     start_time = get_start_time(disks)
     print(start_time)
 
