@@ -79,24 +79,26 @@ def shortest_path(maze, start, heuristic):
     if is_goal(start):
         return [start]
     explored = set()
-    frontier = collections.deque()
-    frontier.append([start])
+    frontier = [[start]]
+    solutions = []
     while frontier:
-        path = frontier.popleft()
+        frontier.sort(key=lambda p: heuristic(p[-1]))
+        path = frontier.pop(0)
         current_cell = path[-1]
         for cell in successors(current_cell, maze):
-            if cell not in explored:
+            new_path = path + [cell]
+            if is_goal(cell):
+                solutions.append(new_path)
+                print(len(new_path), len(explored), new_path)
+            elif cell not in explored:
                 explored.add(cell)
-                new_path = path + [cell]
-                if is_goal(cell):
-                    return new_path
-                else:
-                    frontier.append(new_path)
-    return []
+                frontier.append(new_path)
+    return solutions
 
 
 def main():
     maze_str = """
+    ....
     ..#.
     ..#.
     .#..
@@ -105,13 +107,16 @@ def main():
 
     maze = parse(maze_str)
 
-    start = Cell(0, 0)
+    start = Cell(0, 1)
     goal = Cell(3, 0)
     heuristic = taxicab_heuristic_closure(goal)
 
-    path = shortest_path(maze, start, heuristic=heuristic)
-    length = len(path)
-    print(length, path)
+    paths = shortest_path(maze, start, heuristic=heuristic)
+
+    print('Solutions')
+    for path in paths:
+        length = len(path)
+        print(length, path)
 
 if __name__ == '__main__':
     main()
