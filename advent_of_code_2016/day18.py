@@ -61,7 +61,7 @@ SAFE = '.'
 
 
 def generate_tile(context):
-    left, right = context
+    left, *_, right = context
     if left == right:
         return SAFE
     return TRAP
