@@ -4,7 +4,34 @@ from pprint import pprint
 WALL = '#'
 OPEN = '.'
 
-Cell = collections.namedtuple('Cell', 'x, y')
+
+class Cell:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return '({}, {})'.format(self.x, self.y)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+
+def taxicab_distance(start, end):
+    """Cells start, end"""
+    return abs(start.x - end.x) + abs(start.y - end.y)
+
+
+def taxicab_heuristic_closure(end):
+    def inner(start):
+        return taxicab_distance(start, end)
+    return inner
 
 
 def is_goal_closure(goal):
@@ -24,9 +51,10 @@ def is_open(cell, maze):
 def successors(cell, maze):
     len_x = len(maze[0])
     len_y = len(maze)
-    deltas = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    # north, east, south, west
+    NESW = [(0, -1), (1, 0), (0, 1), (-1, 0)]
     successors = []
-    for delta in deltas:
+    for delta in NESW:
         new_x = cell.x + delta[0]
         if outside(new_x, len_x):
             continue
@@ -44,6 +72,29 @@ def parse(maze_str):
     return maze
 
 
+def shortest_path(maze, start, heuristic):
+    def is_goal(location):
+        return heuristic(location) == 0
+
+    if is_goal(start):
+        return [start]
+    explored = set()
+    frontier = collections.deque()
+    frontier.append([start])
+    while frontier:
+        path = frontier.popleft()
+        current_cell = path[-1]
+        for cell in successors(current_cell, maze):
+            if cell not in explored:
+                explored.add(cell)
+                new_path = path + [cell]
+                if is_goal(cell):
+                    return new_path
+                else:
+                    frontier.append(new_path)
+    return []
+
+
 def main():
     maze_str = """
     ..#.
@@ -53,7 +104,14 @@ def main():
     """
 
     maze = parse(maze_str)
-    pprint(maze)
+
+    start = Cell(0, 0)
+    goal = Cell(3, 0)
+    heuristic = taxicab_heuristic_closure(goal)
+
+    path = shortest_path(maze, start, heuristic=heuristic)
+    length = len(path)
+    print(length, path)
 
 if __name__ == '__main__':
     main()
