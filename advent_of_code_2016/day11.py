@@ -117,172 +117,59 @@ In your situation, what is the minimum number of steps required to bring all of 
 """
 from pprint import pprint
 
+import collections
 import itertools
 
-import math
 
-FAIL = []
+def parse(state_input):
+    floors = [floor.split(',') if floor else []
+              for floor in state_input]
+    elevator = 0
 
+    state = collections.defaultdict(dict)
+    for floor_nr, floor in enumerate(floors):
+        for item in floor:
+            element, kind = item
+            state[element][kind] = floor_nr
 
-def is_valid(floor):
-    chips = [element for element in floor if element[1] == 'M']
-    generators = [element for element in floor if element[1] == 'G']
-    if chips and generators:
-        for chip in chips:
-            if chip[0] + 'G' not in generators:
-                return False
-    return True
+    state_list = [(value['G'], value['M'])
+                  for value in state.values()]
+    state_list.sort()
 
+    state_representation = tuple(state_list), elevator
 
-def is_goal(state):
-    elevator = state[-1]
-    return (len(state[0]) == len(state[1]) == len(state[2]) == 0
-            and len(state[3]) != 0)
-
-
-def heuristic(state):
-    rank = 3 * len(state[0]) // 2 + 2 * len(state[1]) // 2 + 1 * len(state[2]) // 2
-    elevator = state[-1]
-    return rank + elevator
-
-
-def optimize(floor):
-    """Keep only one generator, microchip pair"""
-    simplified_floor = floor[:]
-
-    groups = set(itertools.combinations(floor, 2))
-    pairs = [(x, y)
-             for (x, y) in groups
-             if x[0] == y[0] and x[1] != y[1]]
-
-    pairs_minus_one = pairs[:-1]
-    if pairs_minus_one:
-        extraneous_elements = [element
-                               for pair in pairs_minus_one
-                               for element in pair]
-        simplified_floor = set(floor) - set(extraneous_elements)
-        groups = set(itertools.combinations(simplified_floor, 2))
-
-    single_combinations = itertools.combinations(simplified_floor, 1)
-    groups.update(single_combinations)
-    return groups
-
-
-def successors(state):
-    successors = {}
-    elevator = state[-1]
-    current_floor = state[elevator]
-
-    # groups = set(itertools.combinations(current_floor, 2))
-    # single_combinations = itertools.combinations(current_floor, 1)
-    # groups.update(single_combinations)
-
-    groups = optimize(current_floor)
-
-    directions = []
-    if elevator + 1 < 4:
-        directions.append((elevator + 1, 'up'))
-
-    if elevator - 1 >= 0:
-        directions.append((elevator - 1, 'down'))
-
-    for direction in directions:
-        new_elevator, label = direction
-        for group in groups:
-            current_floor_after = tuple(set(current_floor) - set(group))
-            # current_floor_after = tuple(element
-            #                             for element in current_floor
-            #                             if element not in group)
-            if not is_valid(current_floor_after):
-                continue
-            arriving_floor = state[new_elevator]
-            arriving_floor_after = tuple(set(arriving_floor) | set(group))
-            # arriving_floor_after = arriving_floor + group
-            if not is_valid(arriving_floor_after):
-                continue
-
-            new_state = list(state)
-            new_state[-1] = new_elevator
-            new_state[elevator] = current_floor_after
-            new_state[new_elevator] = arriving_floor_after
-            new_state = tuple(new_state)
-
-            successors[new_state] = group + direction
-    return successors
-
-
-def shortest_path(start, successors, heuristic):
-    if is_goal(start):
-        return [start]
-    explored = set()
-    frontier = [[start]]
-    solutions = []
-    while frontier:
-        frontier.sort(key=lambda p: heuristic(p[-1]))
-        path = frontier.pop(0)
-        current_state = path[-1]
-        for cell in successors(current_state):
-            new_path = path + [cell]
-            if is_goal(cell):
-                solutions.append(new_path)
-                print()
-                print(len(new_path) - 1, len(explored))
-                # pprint(path_repr(new_path))
-                return solutions
-            elif cell not in explored:
-                explored.add(cell)
-                frontier.append(new_path)
-    return solutions
-
-
-def state_repr(state):
-    floors = [','.join(floor) for floor in state[:-1]]
-    floors = [floor if floor else '_'
-              for floor in floors]
-    floors = '|'.join(floors)
-    elevator = state[-1]
-    representation = '{}    {}'.format(elevator, floors)
-    return representation
-
-
-def path_repr(path):
-    return [state_repr(state) for state in path]
+    return state_representation
 
 
 def main():
-    # # Example
-    start = (
-        ('HM', 'LM'),
-        ('HG', ),
-        ('LG', ),
-        tuple(),
-        0
-    )
+    # Example
+    example_input = ('HM,LM',
+                     'HG',
+                     'LG',
+                     '')
 
-    paths = shortest_path(start, successors, heuristic)
+    start = parse(example_input)
+    print(start)
 
-    # # Input file
-    start = (
-        ('SG', 'SM', 'PG', 'PM'),
-        ('TG', 'RG', 'RM', 'CG', 'CM'),
-        ('TM',),
-        tuple(),
-        0
-    )
+    # paths = shortest_path(start, successors)
 
-    paths = shortest_path(start, successors, heuristic)
-
-
-    # # Part 2
-    # start = (
-    #     ('SG', 'SM', 'PG', 'PM', 'EG', 'EM', 'DG', 'DM'),
-    #     ('TG', 'RG', 'RM', 'CG', 'CM'),
-    #     ('TM',),
-    #     tuple(),
-    #     0
-    # )
+    # # Part 1
+    # part1_input = ('SG,SM,PG,PM',
+    #                'TG,RG,RM,CG,CM',
+    #                'TM',
+    #                '')
     #
-    # paths = shortest_path(start, successors, heuristic)
+    # start_part1 = parse(part1_input)
+    # paths_part1 = shortest_path(start_part1, successors)
+    #
+    # # Part 2
+    # part2_input = ('SG,SM,PG,PM,EG,EM,DG,DM',
+    #                'TG,RG,RM,CG,CM',
+    #                'TM',
+    #                '')
+    #
+    # start_part2 = parse(part2_input)
+    # paths = shortest_path(start_part2, successors)
 
 
 if __name__ == '__main__':
