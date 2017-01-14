@@ -121,6 +121,12 @@ import collections
 import itertools
 
 
+def partition(sequence, partition_length):
+    sequence_length = len(sequence)
+    return [tuple(sequence[i:i + partition_length])
+            for i in range(0, sequence_length, partition_length)]
+
+
 def parse(state_input):
     floors = [floor.split(',') if floor else []
               for floor in state_input]
@@ -141,6 +147,99 @@ def parse(state_input):
     return state_representation
 
 
+def is_valid_floor(state, elevator):
+    floor_elements = [(gen, chip)
+                      for gen, chip in state[0]
+                      if gen == elevator or chip == elevator]
+
+    if not floor_elements:
+        return True
+
+    floor_unpaired_chips = [chip
+                            for gen, chip in floor_elements
+                            if chip == elevator and gen != elevator]
+    floor_generators = [gen
+                        for gen, chip in floor_elements
+                        if gen == elevator]
+    if floor_unpaired_chips and floor_generators:
+        return False
+    return True
+
+
+def is_valid(state, old_elevator, new_elevator):
+    return is_valid_floor(state, old_elevator) and is_valid_floor(state,
+                                                                  new_elevator)
+
+
+def successors(state):
+    successors = set()
+    elements, elevator = state
+    elements_flat = [floor_nr
+                     for element in elements
+                     for floor_nr in element]
+
+    current_floor_indexes = [idx
+                             for idx, floor_nr in enumerate(elements_flat)
+                             if floor_nr == elevator]
+
+    index_groups = list(itertools.combinations(current_floor_indexes, 2))
+    index_groups += list(itertools.combinations(current_floor_indexes, 1))
+
+    next_elevator_floors = [elevator + delta
+                            for delta in [-1, 1]
+                            if 0 <= elevator + delta < 4]
+
+    for next_elevator in next_elevator_floors:
+        for indexes in index_groups:
+            next_flat = elements_flat.copy()
+            for index in indexes:
+                next_flat[index] = next_elevator
+
+            new_elements = partition(next_flat, 2)
+            new_elements.sort()
+            next_state = tuple(new_elements), next_elevator
+
+            if next_state not in successors:
+                if is_valid(next_state, elevator, next_elevator):
+                    successors.add(next_state)
+
+    return successors
+
+
+def is_goal(state):
+    elements, elevator = state
+    items_on_lower_floors = any(item != (3, 3)
+                                for item in elements)
+    if items_on_lower_floors:
+        return False
+    return True
+
+
+def shortest_path(start, successors, is_goal):
+    if is_goal(start):
+        return [start]
+    explored = set()
+    frontier = [[start]]
+    while frontier:
+        path = frontier.pop(0)
+        current_state = path[-1]
+        for cell in successors(current_state):
+            new_path = path + [cell]
+            if is_goal(cell):
+                # print()
+                # print(len(new_path) - 1, len(explored))
+                # pprint(new_path)
+                return new_path
+            elif cell not in explored:
+                explored.add(cell)
+                frontier.append(new_path)
+    return []
+
+
+def get_length(path):
+    return len(path) - 1
+
+
 def main():
     # Example
     example_input = ('HM,LM',
@@ -149,27 +248,28 @@ def main():
                      '')
 
     start = parse(example_input)
-    print(start)
+    path = shortest_path(start, successors, is_goal)
+    print('Length example:', get_length(path))
 
-    # paths = shortest_path(start, successors)
+    # Part 1
+    part1_input = ('SG,SM,PG,PM',
+                   'TG,RG,RM,CG,CM',
+                   'TM',
+                   '')
 
-    # # Part 1
-    # part1_input = ('SG,SM,PG,PM',
-    #                'TG,RG,RM,CG,CM',
-    #                'TM',
-    #                '')
-    #
-    # start_part1 = parse(part1_input)
-    # paths_part1 = shortest_path(start_part1, successors)
-    #
-    # # Part 2
-    # part2_input = ('SG,SM,PG,PM,EG,EM,DG,DM',
-    #                'TG,RG,RM,CG,CM',
-    #                'TM',
-    #                '')
-    #
-    # start_part2 = parse(part2_input)
-    # paths = shortest_path(start_part2, successors)
+    start_part1 = parse(part1_input)
+    path_part1 = shortest_path(start_part1, successors, is_goal)
+    print('Length part one:', get_length(path_part1))
+
+    # Part 2
+    part2_input = ('SG,SM,PG,PM,EG,EM,DG,DM',
+                   'TG,RG,RM,CG,CM',
+                   'TM',
+                   '')
+
+    start_part2 = parse(part2_input)
+    path_part2 = shortest_path(start_part2, successors, is_goal)
+    print('Length part two:', get_length(path_part2))
 
 
 if __name__ == '__main__':
