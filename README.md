@@ -8,3 +8,5 @@ Design of Computer Programs, by Peter Norvig
 Learn More Python the Hard Way, by Zed Shaw - Safari video
 
 Advent of Code 2016 http://adventofcode.com
+
+Data Visualization Basics with Python, by Randy Olson
