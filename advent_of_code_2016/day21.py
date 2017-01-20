@@ -27,6 +27,12 @@ After these steps, the resulting scrambled password is decab.
 
 Now, you just need to generate a new scrambled password and you can access the system. Given the list of scrambling operations in your puzzle input, what is the result of scrambling abcdefgh?
 
+--- Part Two ---
+
+You scrambled the password correctly, but you discover that you can't actually modify the password file on the system. You'll need to un-scramble one of the existing passwords by reversing the scrambling process.
+
+What is the un-scrambled version of the scrambled password fbgdceah?
+
 """
 import re
 
@@ -59,10 +65,25 @@ def rotate_based_on_letter_position(chars, *args):
     letter = args[0]
     index = chars.index(letter)
     if index >= 4:
-        rotated = rotate_right(chars, index+2)
+        rotated = rotate_right(chars, index + 2)
     else:
-        rotated = rotate_right(chars, index+1)
+        rotated = rotate_right(chars, index + 1)
     return rotated
+
+
+def undo_rotate_based_on_letter_position(chars, *args):
+    # {index: rotation_steps}
+    rot = {index: index + 1 if index < 4 else index + 2
+           for index in range(len(chars))}
+    length = len(chars)
+
+    # {index_after_rotation: rotation_steps}
+    rot_opposite = {(index + rot[index]) % length: rot[index]
+                    for index in rot}
+    letter = args[0]
+    index = chars.index(letter)
+
+    return rotate_left(chars, rot_opposite[index])
 
 
 def swap_position(chars, *args):
@@ -71,6 +92,10 @@ def swap_position(chars, *args):
     idx2 = int(args[1])
     clone[idx1], clone[idx2] = clone[idx2], clone[idx1]
     return clone
+
+
+def undo_swap_position(chars, *args):
+    return swap_position(chars, args[1], args[0])
 
 
 def swap_letter(chars, *args):
@@ -85,9 +110,9 @@ def reverse_from(chars, *args):
     clone = chars.copy()
     idx1 = int(args[0])
     idx2 = int(args[1])
-    segment = clone[idx1: idx2+1]
+    segment = clone[idx1: idx2 + 1]
     reversed_segment = reversed(segment)
-    clone[idx1: idx2+1] = reversed_segment
+    clone[idx1: idx2 + 1] = reversed_segment
     return clone
 
 
@@ -100,19 +125,26 @@ def move(chars, *args):
     return clone
 
 
-def apply_matching_transformation(input_str, line, commands):
+def undo_move(chars, *args):
+    return move(chars, args[1], args[0])
+
+
+def apply_matching_transformation(input_str, line, commands, undo=False):
     matched = False
     for item in commands:
         match = item['regex'].match(line)
         if match:
             matched = True
-            code = item['callback'](input_str, *match.groups())
+            if undo is True:
+                result = item['undo_callback'](input_str, *match.groups())
+            else:
+                result = item['callback'](input_str, *match.groups())
             break
     if not matched:
         raise ValueError("Unable to parse command on line: '{}'"
                          .format(line.strip()))
 
-    return code
+    return result
 
 
 def scramble(password, lines, commands):
@@ -120,6 +152,14 @@ def scramble(password, lines, commands):
     for line in lines:
         code = apply_matching_transformation(code, line, commands)
     return ''.join(code)
+
+
+def unscramble(code, lines, commands):
+    password = list(code)
+    for line in reversed(lines):
+        password = apply_matching_transformation(password, line, commands,
+                                                 undo=True)
+    return ''.join(password)
 
 
 def main():
@@ -130,36 +170,49 @@ def main():
         {
             'regex': ROTATE_RIGHT,
             'callback': rotate_right,
+            'undo_callback': rotate_left,
         },
         {
             'regex': ROTATE_LEFT,
             'callback': rotate_left,
+            'undo_callback': rotate_right,
         },
         {
             'regex': ROTATE_LETTER,
             'callback': rotate_based_on_letter_position,
+            'undo_callback': undo_rotate_based_on_letter_position,
         },
         {
             'regex': SWAP_POSITION,
             'callback': swap_position,
+            'undo_callback': undo_swap_position,
         },
         {
             'regex': SWAP_LETTER,
             'callback': swap_letter,
+            'undo_callback': swap_letter,
         },
         {
             'regex': REVERSE,
             'callback': reverse_from,
+            'undo_callback': reverse_from,
         },
         {
             'regex': MOVE,
             'callback': move,
+            'undo_callback': undo_move,
         },
     ]
 
     password = 'abcdefgh'
     scrambled = scramble(password, lines, commands)
-    print(scrambled)
+    print('Scramble {} => {}'.format(password, scrambled))
+
+    # Part 2
+    scrambled = 'fbgdceah'
+    unscrambled = unscramble(scrambled, lines, commands)
+    print('Unscramble {} => {}'.format(scrambled, unscrambled))
+
 
 if __name__ == '__main__':
     main()

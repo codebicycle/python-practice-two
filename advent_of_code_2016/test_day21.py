@@ -1,7 +1,8 @@
 from advent_of_code_2016.day21 import (swap_position, swap_letter, rotate_right,
                                        rotate_left,
-                                       rotate_based_on_letter_position, reverse_from,
-                                       move)
+                                       rotate_based_on_letter_position,
+                                       undo_rotate_based_on_letter_position,
+                                       reverse_from, move)
 
 
 def test_swap_position():
@@ -36,6 +37,22 @@ def test_rotate_based_on_letter_position():
     chars = list('abdec')
     result = rotate_based_on_letter_position(chars, 'b')
     assert list('ecabd') == result
+
+
+def test_undo_rotate_based_on_letter_position():
+    chars = list('abcdefgh')
+
+    rotated = rotate_based_on_letter_position(chars, 'b')
+    rotated_back = undo_rotate_based_on_letter_position(rotated, 'b')
+    assert chars == rotated_back
+
+    rotated = rotate_based_on_letter_position(chars, 'e')
+    rotated_back = undo_rotate_based_on_letter_position(rotated, 'e')
+    assert chars == rotated_back
+
+    rotated = rotate_based_on_letter_position(chars, 'g')
+    rotated_back = undo_rotate_based_on_letter_position(rotated, 'g')
+    assert chars == rotated_back
 
 
 def test_reverse_from():
