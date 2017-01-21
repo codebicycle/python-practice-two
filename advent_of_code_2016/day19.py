@@ -26,6 +26,8 @@ With the number of Elves given in your puzzle input, which Elf gets all the pres
 Your puzzle input is 3005290.
 
 """
+import time
+import math
 
 
 class Node:
@@ -39,12 +41,15 @@ class Node:
 
 
 def create_elfs(number):
-    elfs = [Node(i) for i in range(1, number + 1)]
+    elfs = []
+    prev_node = Node(1)
+    elfs.append(prev_node)
+    for i in range(2, number+1):
+        current = Node(i)
+        prev_node.next = current
+        prev_node = current
 
-    for idx in range(len(elfs) - 1):
-        elfs[idx].next = elfs[idx + 1]
-    elfs[-1].next = elfs[0]
-
+    current.next = elfs[0]
     return elfs
 
 
@@ -62,12 +67,48 @@ def exchange_gifts(elfs):
     return current.index
 
 
+def steal_opposite(number):
+    elfs = list(range(1, number+1))
+    length = len(elfs)
+    while length > 1:
+        eliminated = 0
+        for index in range(math.ceil(length / 3)):
+            opposite = index + eliminated + (length // 2)
+            # del elfs[opposite]
+            elfs[opposite] = None
+            eliminated += 1
+            length -= 1
+
+        elfs = [elf
+                for elf in elfs[index+1:] + elfs[:index+1]
+                if elf]
+
+        length = len(elfs)
+    return elfs[0]
+
+
 def main():
     puzzle_input = 3005290
 
+    # Part 1
     elfs = create_elfs(puzzle_input)
-    lucky_elf_index = exchange_gifts(elfs)
-    print(lucky_elf_index)
+
+    start_time = time.perf_counter()
+    lucky_elf = exchange_gifts(elfs)
+    elapsed_time = time.perf_counter() - start_time
+
+    print('Part 1')
+    print('Lucky elf', lucky_elf)
+    print('Duration {:.2f}'.format(elapsed_time))
+
+    # Part 2
+    start_time = time.perf_counter()
+    lucky_elf = steal_opposite(puzzle_input)
+    elapsed_time = time.perf_counter() - start_time
+
+    print('\nPart 2')
+    print('Lucky elf', lucky_elf)
+    print('Duration {:.2f}'.format(elapsed_time))
 
 if __name__ == '__main__':
     main()
