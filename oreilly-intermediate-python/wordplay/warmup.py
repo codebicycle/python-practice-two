@@ -12,6 +12,16 @@ def words_with_all_vowels(wordlist):
     return words
 
 
+def is_palindrome(word):
+    return word == word[::-1]
+
+
+def extract_palindromes(wordlist):
+    return [word
+            for word in wordlist
+            if is_palindrome(word)]
+
+
 def main():
     uu = [word
           for word in scrabble.wordlist
@@ -37,6 +47,15 @@ def main():
     print('Words containing all vowels:')
     for word in words_with_all_vowels(scrabble.wordlist):
         print(word)
+
+    print()
+    print('Top longest palindromes:')
+    palindromes = extract_palindromes(scrabble.wordlist)
+    palindromes.sort(key=len, reverse=True)
+    for palindrome in palindromes[:10]:
+        print(palindrome)
+
+    assert 'radar' in palindromes
 
 if __name__ == '__main__':
     main()
