@@ -33,6 +33,11 @@ class GildedRose(object):
                 item.quality += 1
         elif name.startswith('sulfuras'):
             pass
+        elif name.startswith('conjured'):
+            if item.sell_in > 0:
+                item.quality -= 2
+            else:
+                item.quality -= 4
         else:
             if item.sell_in > 0:
                 item.quality -= 1
