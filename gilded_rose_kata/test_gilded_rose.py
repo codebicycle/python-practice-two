@@ -71,16 +71,20 @@ def test_sulfuras(gilded_rose):
 
 
 def test_aged_brie_increase_quality():
-    initial_quality = 10
-    items = [Item('Aged Brie', sell_in=5, quality=initial_quality)]
+    quality = 10
+    items = [Item('Aged Brie', sell_in=5, quality=quality)]
     inventory = GildedRose(items)
+    item = inventory.items[0]
 
+    quality += 1
     inventory.update_quality()
-    assert inventory.items[0].quality == initial_quality + 1
+    assert quality == item.quality
 
-    initial_quality += 1
-    days_after(50, inventory)
-    assert inventory.items[0].quality > initial_quality
+    # after sell_in
+    quality += 2
+    item.sell_in = 0
+    days_after(1, inventory)
+    assert quality == item.quality
 
 
 def test_quality_decrease():
