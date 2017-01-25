@@ -189,3 +189,20 @@ def test_backstage_pass():
 
     inventory.update_quality()
     assert 0 == item.quality
+
+
+def test_conjured():
+    quality = 10
+    items = [Item('Conjured Mana Cake', sell_in=5, quality=quality)]
+    inventory = GildedRose(items)
+    item = inventory.items[0]
+
+    inventory.update_quality()
+    quality -= 2
+    assert quality == item.quality
+
+    # after sell_in date
+    item.sell_in = 0
+    inventory.update_quality()
+    quality -= 4
+    assert quality == item.quality
