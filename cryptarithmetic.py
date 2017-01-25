@@ -4,17 +4,26 @@ output should be a string with the digits filled in, or None if the
 problem is not solvable.
 
 """
+import re
 import string
 import itertools
+
+import time
+
+FIRST_LETTER = re.compile(r'\b[a-zA-Z]')
+LETTER = re.compile(r'[a-zA-Z]')
 
 
 def output(func):
     def wrapper(formula):
         print(formula)
-        result = func(formula)
-        print(result)
+        start_time = time.perf_counter()
+        substitution = func(formula)
+        elapsed_time = time.perf_counter() - start_time
+        print(substitution)
+        print('{:.3f} seconds'.format(elapsed_time))
         print()
-        return result
+        return substitution
 
     return wrapper
 
@@ -23,32 +32,35 @@ def output(func):
 def solve(formula):
     """Given a formula like 'ODD + ODD == EVEN', fill in digits to solve it.
     Input formula is a string; output is a digit-filled-in string or None."""
+    formula = formula.upper()
+
     digits = tuple('0123456789')
     alphabet = set(string.ascii_uppercase)
 
-    unique_letters = set(char
-                         for char in formula.upper()
-                         if char in alphabet)
-    letters = tuple(unique_letters)
+    unique_first_letters = set(FIRST_LETTER.findall(formula))
+    unique_letters = set(LETTER.findall(formula))
+    rest = unique_letters - unique_first_letters
+    letters = tuple(unique_first_letters) + tuple(rest)
+    end_first_letters = len(unique_first_letters)
 
     digit_permutations = itertools.permutations(digits, len(letters))
     for permutation in digit_permutations:
+        if '0' in permutation[:end_first_letters]:
+            continue
+
         table = str.maketrans(dict(zip(letters, permutation)))
         digit_formula = formula.translate(table)
 
-        try:
-            result = eval(digit_formula)
-            if result:
-                return digit_formula
-        except SyntaxError:
-            pass
+        result = eval(digit_formula)
+        if result:
+            return digit_formula
 
 
 def main():
     solve('ODD + ODD == EVEN')
     solve('A + B == C')
     solve('ABC + ABC == MNOP')
-    # solve('ABC + XYZ == MNOP')
+    solve('ABC + XYZ == MNOP')
 
 
 if __name__ == '__main__':
