@@ -8,16 +8,21 @@ from gilded_rose import Item, GildedRose
 
 @pytest.fixture
 def gilded_rose():
-    wolf3d_items = [
-        Item(name='food', sell_in=10, quality=10),
-        Item(name='dog food', sell_in=10, quality=4),
-        Item(name='first aid kit', sell_in=10, quality=25),
-        Item(name='Sulfuras', sell_in=math.inf, quality=80),
-        Item(name='Aged Brie', sell_in=10, quality=15),
-        Item(name='backstage passes to QuakeCon', sell_in=20, quality=10),
-        Item(name='conjured crown', sell_in=20, quality=50),
+    items = [
+        Item(name="+5 Dexterity Vest", sell_in=10, quality=20),
+        Item(name="Aged Brie", sell_in=2, quality=0),
+        Item(name="Elixir of the Mongoose", sell_in=5, quality=7),
+        Item(name="Sulfuras, Hand of Ragnaros", sell_in=0, quality=80),
+        Item(name="Sulfuras, Hand of Ragnaros", sell_in=-1, quality=80),
+        Item(name="Backstage passes to a TAFKAL80ETC concert", sell_in=15,
+             quality=20),
+        Item(name="Backstage passes to a TAFKAL80ETC concert", sell_in=10,
+             quality=49),
+        Item(name="Backstage passes to a TAFKAL80ETC concert", sell_in=5,
+             quality=49),
+        Item(name="Conjured Mana Cake", sell_in=3, quality=6)
     ]
-    return GildedRose(wolf3d_items)
+    return GildedRose(items)
 
 
 def days_after(days, gildedrose):
@@ -45,10 +50,17 @@ def test_text(gilded_rose):
 
 
 def test_decrease_sell_in(gilded_rose):
-    initial_sell_ins = [item.sell_in for item in gilded_rose.items]
+    initial_sell_ins = [item.sell_in
+                        for item in gilded_rose.items
+                        if not item.name.lower().startswith('sulfuras')]
+
     gilded_rose.update_quality()
-    for index, item in enumerate(gilded_rose.items):
-        assert item.sell_in == initial_sell_ins[index] - 1
+    after_sell_ins = [item.sell_in
+                      for item in gilded_rose.items
+                      if not item.name.lower().startswith('sulfuras')]
+
+    for index in range(len(initial_sell_ins)):
+        assert initial_sell_ins[index] - 1 == after_sell_ins[index]
 
 
 def test_quality_is_positive(gilded_rose):
@@ -66,7 +78,7 @@ def test_quality_is_limited_to_50(gilded_rose):
     items_quality_max = lambda: (item.quality <= 50
                                  for item in gilded_rose.items
                                  if not item.name.lower().startswith(
-                                    'sulfuras'))
+        'sulfuras'))
     assert all(items_quality_max())
 
     days_after(500, gilded_rose)
