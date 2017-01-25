@@ -8,12 +8,21 @@ import string
 import itertools
 
 
+def output(func):
+    def wrapper(formula):
+        print(formula)
+        result = func(formula)
+        print(result)
+        print()
+        return result
+
+    return wrapper
+
+
+@output
 def solve(formula):
     """Given a formula like 'ODD + ODD == EVEN', fill in digits to solve it.
     Input formula is a string; output is a digit-filled-in string or None."""
-    print()
-    print(formula)
-
     digits = tuple('0123456789')
     alphabet = set(string.ascii_uppercase)
 
@@ -30,7 +39,6 @@ def solve(formula):
         try:
             result = eval(digit_formula)
             if result:
-                print(digit_formula)
                 return digit_formula
         except SyntaxError:
             pass
