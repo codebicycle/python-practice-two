@@ -6,33 +6,44 @@ class GildedRose(object):
 
     def update_quality(self):
         for item in self.items:
-            if item.name != "Aged Brie" and item.name != "backstage passes to QuakeCon":
-                if item.quality > 0:
-                    if item.name != "Sulfuras":
-                        item.quality = item.quality - 1
+            self._update_sell_in(item)
+            self._update_quality(item)
+
+    @staticmethod
+    def _update_sell_in(item):
+        if not item.name.lower().startswith('sulfuras'):
+            item.sell_in -= 1
+
+    @staticmethod
+    def _update_quality(item):
+        name = item.name.lower()
+        if name == 'aged brie':
+            if item.sell_in > 0:
+                item.quality += 1
             else:
-                if item.quality < 50:
-                    item.quality = item.quality + 1
-                    if item.name == "backstage passes to QuakeCon":
-                        if item.sell_in < 11:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-                        if item.sell_in < 6:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-            if item.name != "Sulfuras":
-                item.sell_in = item.sell_in - 1
+                item.quality += 2
+        elif name.startswith('backstage pass'):
             if item.sell_in < 0:
-                if item.name != "Aged Brie":
-                    if item.name != "backstage passes to QuakeCon":
-                        if item.quality > 0:
-                            if item.name != "Sulfuras":
-                                item.quality = item.quality - 1
-                    else:
-                        item.quality = item.quality - item.quality
-                else:
-                    if item.quality < 50:
-                        item.quality = item.quality + 1
+                item.quality = 0
+            elif item.sell_in < 5:
+                item.quality += 3
+            elif item.sell_in < 10:
+                item.quality += 2
+            else:
+                item.quality += 1
+        elif name.startswith('sulfuras'):
+            pass
+        else:
+            if item.sell_in > 0:
+                item.quality -= 1
+            else:
+                item.quality -= 2
+
+        if item.quality < 0:
+            item.quality = 0
+        elif item.quality > 50:
+            if not name.startswith('sulfuras'):
+                item.quality = 50
 
 
 class Item:
