@@ -21,8 +21,27 @@ def gilded_rose():
 
 
 def days_after(days, gildedrose):
+    print('After {} days'.format(days))
     for _ in range(days):
         gildedrose.update_quality()
+
+
+@pytest.mark.xfail
+def test_text(gilded_rose):
+    pprint(gilded_rose.items)
+
+    days_after(1, gilded_rose)
+    pprint(gilded_rose.items)
+
+    days_after(8, gilded_rose)
+    pprint(gilded_rose.items)
+
+    days_after(1, gilded_rose)
+    pprint(gilded_rose.items)
+
+    days_after(1, gilded_rose)
+    pprint(gilded_rose.items)
+    assert False
 
 
 def test_decrease_sell_in(gilded_rose):
@@ -55,19 +74,17 @@ def test_quality_is_limited_to_50(gilded_rose):
 
 
 def test_sulfuras(gilded_rose):
-    legendary_items = lambda: (item
-                               for item in gilded_rose.items
-                               if item.name.lower().startswith('sulfuras'))
+    items = [Item('Sulfuras', sell_in=math.inf, quality=80)]
+    inventory = GildedRose(items)
+    item = inventory.items[0]
 
-    gilded_rose.update_quality()
-    for item in legendary_items():
-        assert 80 == item.quality
-        assert math.inf == item.sell_in
+    inventory.update_quality()
+    assert 80 == item.quality
+    assert math.inf == item.sell_in
 
-    days_after(500, gilded_rose)
-    for item in legendary_items():
-        assert 80 == item.quality
-        assert math.inf == item.sell_in
+    days_after(500, inventory)
+    assert 80 == item.quality
+    assert math.inf == item.sell_in
 
 
 def test_aged_brie_increase_quality():
@@ -91,28 +108,30 @@ def test_quality_decrease():
     quality = 10
     items = [Item('food', sell_in=5, quality=quality)]
     inventory = GildedRose(items)
+    item = inventory.items[0]
 
     inventory.update_quality()
     quality -= 1
-    assert inventory.items[0].quality == quality
+    assert quality == item.quality
 
     inventory.update_quality()
     quality -= 1
-    assert inventory.items[0].quality == quality
+    assert quality == item.quality
 
 
 def test_quality_decrease_twice_after_sell_in():
     quality = 10
     items = [Item('food', sell_in=0, quality=quality)]
     inventory = GildedRose(items)
+    item = inventory.items[0]
 
     inventory.update_quality()
     quality -= 2
-    assert inventory.items[0].quality == quality
+    assert quality == item.quality
 
     inventory.update_quality()
     quality -= 2
-    assert inventory.items[0].quality == quality
+    assert quality == item.quality
 
 
 def test_backstage_pass():
@@ -124,32 +143,32 @@ def test_backstage_pass():
     # more than 10 days remaining
     quality += 1
     inventory.update_quality()
-    assert item.quality == quality
+    assert quality == item.quality
 
     # 10 days or less
     item.sell_in = 10
     quality += 2
     inventory.update_quality()
-    assert item.quality == quality
+    assert quality == item.quality
 
     quality += 2
     inventory.update_quality()
-    assert item.quality == quality
+    assert quality == item.quality
 
     # 5 days or less
     item.sell_in = 5
     quality += 3
     inventory.update_quality()
-    assert item.quality == quality
+    assert quality == item.quality
 
     quality += 3
     inventory.update_quality()
-    assert item.quality == quality
+    assert quality == item.quality
 
     item.sell_in = 1
     quality += 3
     inventory.update_quality()
-    assert item.quality == quality
+    assert quality == item.quality
 
     # after sell_in date
     item.sell_in = 0
