@@ -5,9 +5,7 @@ problem is not solvable.
 
 """
 import re
-import string
 import itertools
-
 import time
 
 FIRST_LETTER = re.compile(r'\b[a-zA-Z]')
@@ -31,23 +29,23 @@ def output(func):
 @output
 def solve(formula):
     """Given a formula like 'ODD + ODD == EVEN', fill in digits to solve it.
-    Input formula is a string; output is a digit-filled-in string or None."""
-    formula = formula.upper()
+    Input formula is a string; output is a digit-filled-in string or None.
 
+    """
+    formula = formula.upper()
     digits = tuple('0123456789')
-    alphabet = set(string.ascii_uppercase)
 
     unique_first_letters = set(FIRST_LETTER.findall(formula))
     unique_letters = set(LETTER.findall(formula))
-    rest = unique_letters - unique_first_letters
-    letters = tuple(unique_first_letters) + tuple(rest)
-    end_first_letters = len(unique_first_letters)
+    remaining_letters = unique_letters - unique_first_letters
+    letters = tuple(unique_first_letters) + tuple(remaining_letters)
+    first_letters = slice(0, len(unique_first_letters))
 
     digit_permutations = itertools.permutations(digits, len(letters))
-    for permutation in digit_permutations:
-        if '0' in permutation[:end_first_letters]:
-            continue
-
+    filtered = (permutation
+                for permutation in digit_permutations
+                if '0' not in permutation[first_letters])
+    for permutation in filtered:
         table = str.maketrans(dict(zip(letters, permutation)))
         digit_formula = formula.translate(table)
 
