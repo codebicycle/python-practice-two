@@ -1,7 +1,7 @@
 import pytest
 
-from advent_of_code_2016.graph import (find_path, find_all_paths,
-                                       find_shortest_path)
+from graph import (find_path, find_all_paths,
+                   find_shortest_path)
 
 
 @pytest.fixture

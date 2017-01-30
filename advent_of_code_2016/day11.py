@@ -117,149 +117,159 @@ In your situation, what is the minimum number of steps required to bring all of 
 """
 from pprint import pprint
 
+import collections
 import itertools
 
-FAIL = []
+
+def partition(sequence, partition_length):
+    sequence_length = len(sequence)
+    return [tuple(sequence[i:i + partition_length])
+            for i in range(0, sequence_length, partition_length)]
 
 
-def is_valid(floor):
-    chips = [element for element in floor if element[1] == 'M']
-    generators = [element for element in floor if element[1] == 'G']
-    if chips and generators:
-        for chip in chips:
-            if chip[0] + 'G' not in generators:
-                return False
+def parse(state_input):
+    floors = [floor.split(',') if floor else []
+              for floor in state_input]
+    elevator = 0
+
+    state = collections.defaultdict(dict)
+    for floor_nr, floor in enumerate(floors):
+        for item in floor:
+            element, kind = item
+            state[element][kind] = floor_nr
+
+    state_list = [(value['G'], value['M'])
+                  for value in state.values()]
+    state_list.sort()
+
+    state_representation = tuple(state_list), elevator
+
+    return state_representation
+
+
+def is_valid_floor(state, elevator):
+    floor_elements = [(gen, chip)
+                      for gen, chip in state[0]
+                      if gen == elevator or chip == elevator]
+
+    if not floor_elements:
+        return True
+
+    floor_unpaired_chips = [chip
+                            for gen, chip in floor_elements
+                            if chip == elevator and gen != elevator]
+    floor_generators = [gen
+                        for gen, chip in floor_elements
+                        if gen == elevator]
+    if floor_unpaired_chips and floor_generators:
+        return False
     return True
 
 
-def is_goal(state):
-    elevator = state[-1]
-    return (len(state[0]) == len(state[1]) == len(state[2]) == 0
-            and len(state[3]) != 0 and elevator == 3)
+def is_valid(state, old_elevator, new_elevator):
+    return is_valid_floor(state, old_elevator) and is_valid_floor(state,
+                                                                  new_elevator)
 
 
 def successors(state):
-    successors = {}
-    elevator = state[-1]
-    current_floor = state[elevator]
-    groups = list(itertools.combinations(current_floor, 2))
+    successors = set()
+    elements, elevator = state
+    elements_flat = [floor_nr
+                     for element in elements
+                     for floor_nr in element]
 
-    # generator, microchip pair
-    pairs = [(x, y)
-             for (x, y) in groups
-             if x[0] == y[0] and x[1] != y[1]]
+    current_floor_indexes = [idx
+                             for idx, floor_nr in enumerate(elements_flat)
+                             if floor_nr == elevator]
 
-    # Optimisation, keep only one pair
-    if len(pairs) > 1:
-        first_x, first_y = pairs[0]
-        pair_elements = [element
-                         for pair in pairs
-                         for element in pair]
+    index_groups = list(itertools.combinations(current_floor_indexes, 2))
+    index_groups += list(itertools.combinations(current_floor_indexes, 1))
 
-        redux = set(current_floor) - set(pair_elements)
-        redux.add(first_x)
-        redux.add(first_y)
-        groups = list(itertools.combinations(redux, 2))
-        groups += list(itertools.combinations(redux, 1))
-    else:
-        groups += list(itertools.combinations(current_floor, 1))
+    next_elevator_floors = [elevator + delta
+                            for delta in [-1, 1]
+                            if 0 <= elevator + delta < 4]
 
-    directions = []
-    if elevator + 1 < 4:
-        directions.append((elevator + 1, 'up'))
+    for next_elevator in next_elevator_floors:
+        for indexes in index_groups:
+            next_flat = elements_flat.copy()
+            for index in indexes:
+                next_flat[index] = next_elevator
 
-    if elevator - 1 >= 0:
-        directions.append((elevator - 1, 'down'))
+            new_elements = partition(next_flat, 2)
+            new_elements.sort()
+            next_state = tuple(new_elements), next_elevator
 
-    for direction in directions:
-        new_elevator, label = direction
-        for group in groups:
-            current_floor_after = tuple(set(current_floor) - set(group))
-            if not is_valid(current_floor_after):
-                continue
-            arriving_floor = state[new_elevator]
-            arriving_floor_after = tuple(set(arriving_floor) | set(group))
-            if not is_valid(arriving_floor_after):
-                continue
+            if next_state not in successors:
+                if is_valid(next_state, elevator, next_elevator):
+                    successors.add(next_state)
 
-            new_state = list(state)
-            new_state[-1] = new_elevator
-            new_state[elevator] = current_floor_after
-            new_state[new_elevator] = arriving_floor_after
-            new_state = tuple(new_state)
-
-            successors[new_state] = tuple(set(group)) + direction
     return successors
 
 
-def shortest_path_search(start, successors, is_goal):
-    """Find the shortest path from start state to a state
-    such that is_goal(state) is true."""
+def is_goal(state):
+    elements, elevator = state
+    items_on_lower_floors = any(item != (3, 3)
+                                for item in elements)
+    if items_on_lower_floors:
+        return False
+    return True
+
+
+def shortest_path(start, successors, is_goal):
     if is_goal(start):
         return [start]
     explored = set()
     frontier = [[start]]
     while frontier:
         path = frontier.pop(0)
-        s = path[-1]
-        for (state, action) in successors(s).items():
-            if state not in explored:
-                explored.add(state)
-                newpath = path + [action, state]
-                if is_goal(state):
-                    return newpath
-                else:
-                    frontier.append(newpath)
-    return FAIL
+        current_state = path[-1]
+        for cell in successors(current_state):
+            new_path = path + [cell]
+            if is_goal(cell):
+                # print()
+                # print(len(new_path) - 1, len(explored))
+                # pprint(new_path)
+                return new_path
+            elif cell not in explored:
+                explored.add(cell)
+                frontier.append(new_path)
+    return []
+
+
+def get_length(path):
+    return len(path) - 1
 
 
 def main():
-    # # Example
-    # start = (
-    #     ('HM', 'LM'),
-    #     ('HG', ),
-    #     ('LG', ),
-    #     tuple(),
-    #     0
-    # )
-    #
-    # path = shortest_path_search(start, successors, is_goal)
-    # pprint(path)
-    #
-    # steps = len(path) // 2
-    # print('\nSteps:', steps)
+    # Example
+    example_input = ('HM,LM',
+                     'HG',
+                     'LG',
+                     '')
 
+    start = parse(example_input)
+    path = shortest_path(start, successors, is_goal)
+    print('Length example:', get_length(path))
 
-    # # Input file
-    start = (
-        ('SG', 'SM', 'PG', 'PM'),
-        ('TG', 'RG', 'RM', 'CG', 'CM'),
-        ('TM', ),
-        tuple(),
-        0
-    )
+    # Part 1
+    part1_input = ('SG,SM,PG,PM',
+                   'TG,RG,RM,CG,CM',
+                   'TM',
+                   '')
 
-    path = shortest_path_search(start, successors, is_goal)
-    pprint(path)
+    start_part1 = parse(part1_input)
+    path_part1 = shortest_path(start_part1, successors, is_goal)
+    print('Length part one:', get_length(path_part1))
 
-    steps = len(path) // 2
-    print('\nSteps:', steps)
+    # Part 2
+    part2_input = ('SG,SM,PG,PM,EG,EM,DG,DM',
+                   'TG,RG,RM,CG,CM',
+                   'TM',
+                   '')
 
-
-    # # Part 2
-    # start = (
-    #     ('SG', 'SM', 'PG', 'PM', 'EG', 'EM', 'DG', 'DM'),
-    #     ('TG', 'RG', 'RM', 'CG', 'CM'),
-    #     ('TM',),
-    #     tuple(),
-    #     0
-    # )
-    #
-    # path = shortest_path_search(start, successors, is_goal)
-    # pprint(path)
-    #
-    # steps = len(path) // 2
-    # print('\nSteps:', steps)
+    start_part2 = parse(part2_input)
+    path_part2 = shortest_path(start_part2, successors, is_goal)
+    print('Length part two:', get_length(path_part2))
 
 
 if __name__ == '__main__':

@@ -38,36 +38,125 @@ What is the fewest number of steps required for you to reach 31,39?
 
 Your puzzle input is 1362.
 
+--- Part Two ---
+
+How many locations (distinct x,y coordinates, including your starting location) can you reach in at most 50 steps?
+
 """
+
+FAIL = []
+
+
+def is_goal_closure(goal):
+    def is_goal(cell):
+        return cell == goal
+    return is_goal
+
+
 def is_odd(number):
-  return number % 2 == 1
+    return number % 2 == 1
+
+
+def successors(cell):
+    deltas = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    successors = []
+    for delta in deltas:
+        new_x = cell.x + delta[0]
+        if new_x < 0:
+            continue
+        new_y = cell.y + delta[1]
+        if new_y < 0:
+            continue
+        new_cell = Cell(new_x, new_y)
+        if not new_cell.is_wall():
+            successors.append(new_cell)
+    return successors
+
+
+def search_path(start, successors, is_goal):
+    if is_goal(start):
+        return [start]
+    explored = set()
+    frontier = [[start]]
+    while frontier:
+        path = frontier.pop(0)
+        current_cell = path[-1]
+        for cell in successors(current_cell):
+            if cell not in explored:
+                explored.add(cell)
+                newpath = path + [cell]
+                if is_goal(cell):
+                    return newpath
+                else:
+                    frontier.append(newpath)
+    return FAIL
+
+
+def reachable(start, successors, max_steps):
+    explored = {start}
+    frontier = [[start]]
+    steps = 0
+    while frontier and steps < max_steps:
+        steps += 1
+        ring = frontier.pop(0)
+        newring = []
+        for current_cell in ring:
+            for newcell in successors(current_cell):
+                if newcell not in explored:
+                    explored.add(newcell)
+                    newring.append(newcell)
+        frontier.append(newring)
+    return explored
 
 
 class Cell:
-  puzzle_input = 1362
+    puzzle_input = 10
 
-  def __init__(self, x, y):
-    self.x = x
-    self.y = y
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-  def is_wall(self):
-    decimal = (self.x * self.x + 3 * self.x + 2 * self.x * self.y + 
-               self.y + self.y * self.y)
-    decimal += self.puzzle_input
-    binary = '{0:b}'.format(decimal)
-    ones = binary.count('1')
-    return is_odd(ones)
+    def is_wall(self):
+        decimal = (self.x * self.x + 3 * self.x + 2 * self.x * self.y +
+                   self.y + self.y * self.y)
+        decimal += self.puzzle_input
+        binary = '{0:b}'.format(decimal)
+        ones = binary.count('1')
+        return is_odd(ones)
 
-  def __str__(self):
-    return '#' if self.is_wall() else '.'
+    def __str__(self):
+        return '({}, {})'.format(self.x, self.y)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))
 
 
 def main():
-  Cell.puzzle_input = 10
-  for y in range(7):
-    for x in range(10):
-      print(Cell(x,y), end='')
+    Cell.puzzle_input = 1362
+    start = Cell(1, 1)
+
+    goal = Cell(31, 39)
+    is_goal = is_goal_closure(goal)
+
+    path = search_path(start, successors, is_goal)
+    length = len(path) - 1
+
+    print(path)
+    print('Length:', length)
     print()
 
+    max_steps = 50
+    explored = reachable(start, successors, max_steps)
+    nr_locations = len(explored)
+    print(explored)
+    print('Reachable locations: {} ({} steps)'.format(nr_locations, max_steps))
+
+
 if __name__ == '__main__':
-  main()
+    main()
