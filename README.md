@@ -10,3 +10,5 @@ Learn More Python the Hard Way, by Zed Shaw - Safari video
 Advent of Code 2016 http://adventofcode.com
 
 Data Visualization Basics with Python, by Randy Olson
+
+99 Bottles of OOP, by Sandy Metz
