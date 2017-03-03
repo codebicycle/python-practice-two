@@ -12,29 +12,38 @@ For example:
 
 Your puzzle input is ckczppom.
 
+--- Part Two ---
+
+Now find one that starts with six zeroes.
+
 """
 import hashlib
 
-TARGET = '00000'
 
-
-def find_number(puzzle_input):
+def find_number(puzzle_input, target):
     prefix = bytes(puzzle_input, 'utf8')
 
     number = 0
     while True:
         number += 1
-        message = prefix + bytes(str(number), 'utf8')
-        digest = hashlib.md5(message).hexdigest()
+        bytes_number = bytes(str(number), 'utf8')
+        key = prefix + bytes_number
+        digest = hashlib.md5(key).hexdigest()
 
-        if digest.startswith(TARGET):
+        if digest.startswith(target):
             return number
 
 
 def main():
     puzzle_input = 'ckczppom'
-    number = find_number(puzzle_input)
-    print(number)
+
+    five_zeros = '00000'
+    number = find_number(puzzle_input, five_zeros)
+    print('Five zeroes', number)
+
+    six_zeroes = '000000'
+    number = find_number(puzzle_input, six_zeroes)
+    print('Six zeroes', number)
 
 
 if __name__ == '__main__':
