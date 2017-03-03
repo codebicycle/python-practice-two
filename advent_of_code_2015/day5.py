@@ -19,12 +19,32 @@ For example:
 
 How many strings are nice?
 
+--- Part Two ---
+
+Realizing the error of his ways, Santa has switched to a better model of determining whether a string is naughty or nice. None of the old rules apply, as they are all clearly ridiculous.
+
+Now, a nice string is one with all of the following properties:
+
+    It contains a pair of any two letters that appears at least twice in the string without overlapping, like xyxy (xy) or aabcdefgaa (aa), but not like aaa (aa, but it overlaps).
+    It contains at least one letter which repeats with exactly one letter between them, like xyx, abcdefeghi (efe), or even aaa.
+
+For example:
+
+    qjhvhtzxzqqjkmpb is nice because is has a pair that appears twice (qj) and a letter that repeats with exactly one letter between them (zxz).
+    xxyxx is nice because it has a pair that appears twice and a letter that repeats with one between, even though the letters used by each rule overlap.
+    uurcxstgmygtbstg is naughty because it has a pair (tg) but no repeat with a single letter between them.
+    ieodomkazucvgmuy is naughty because it has a repeating letter with one between (odo), but no pair that appears twice.
+
+How many strings are nice under these new rules?
+
 """
 import re
 
 BAD = re.compile(r'ab|cd|pq|xy')
 THREE_VOWELS = re.compile(r'[aeiou].*[aeiou].*[aeiou]')
 DUPLICATE = re.compile(r'(\w)\1')
+DUPLICATE_PAIR = re.compile(r'(\w)(\w).*\1\2')
+ABA = re.compile(r'(\w)\w\1')
 
 
 def is_nice(text):
@@ -36,10 +56,17 @@ def is_nice(text):
     return False
 
 
-def count_nice(lines):
+def is_nice2(text):
+    if ABA.search(text) and DUPLICATE_PAIR.search(text):
+        return True
+
+    return False
+
+
+def count(lines, callback):
     counter = 0
     for line in lines:
-        if is_nice(line):
+        if callback(line):
             counter += 1
 
     return counter
@@ -49,8 +76,12 @@ def main():
     with open('input5.txt') as f:
         lines = f.readlines()
 
-    num_nice = count_nice(lines)
+    num_nice = count(lines, is_nice)
     print(num_nice)
+
+    num_nice = count(lines, is_nice2)
+    print(num_nice)
+
 
 if __name__ == '__main__':
     main()
