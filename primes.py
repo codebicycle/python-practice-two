@@ -26,12 +26,14 @@ def eratosthens_sieve(n):
 def is_prime(nr):
     if nr <= 1:
         return False
+    if nr == 2:
+        return True
     if nr % 2 == 0:
         return False
     limit = math.floor(math.sqrt(nr))
 
-    for candidate in range(3, limit+1, 2):
-        if nr % candidate == 0:
+    for i in range(3, limit+1, 2):
+        if nr % i == 0:
             return False
     return True
 
