@@ -20,6 +20,8 @@ def make_item(*args, **kwargs):
         return BackstagePass(*args, **kwargs)
     elif 'sulfuras' in name:
         return Sulfuras(*args, **kwargs)
+    elif 'conjured' in name:
+        return Conjured(*args, **kwargs)
     else:
         return NormalItem(*args, **kwargs)
 
@@ -83,3 +85,9 @@ class Sulfuras(NormalItem):
 
     def update_quality(self):
         pass
+
+
+class Conjured(NormalItem):
+    def update_quality(self):
+        super().update_quality()
+        super().update_quality()
