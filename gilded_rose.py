@@ -60,9 +60,11 @@ class NormalItem(Item):
                 decrease_quality(self)
 
 
-class AgedBrie(Item):
+
+class AgedBrie(NormalItem):
     def update_quality(self):
         self.sell_in -= 1
+
         if self.sell_in < 0:
             self.quality += 2
         else:
