@@ -42,9 +42,7 @@ class Item:
 
 class NormalItem(Item):
     def update_quality(self):
-        if self.name == "Aged Brie":
-            increase_quality(self)
-        elif self.name == "Backstage passes to a TAFKAL80ETC concert":
+        if self.name == "Backstage passes to a TAFKAL80ETC concert":
             increase_quality(self)
             if self.sell_in <= 10:
                 increase_quality(self)
@@ -56,9 +54,7 @@ class NormalItem(Item):
         decrease_sell_in(self)
 
         if self.sell_in < 0:
-            if self.name == "Aged Brie":
-                increase_quality(self)
-            elif self.name == "Backstage passes to a TAFKAL80ETC concert":
+            if self.name == "Backstage passes to a TAFKAL80ETC concert":
                 self.quality = 0
             else:
                 decrease_quality(self)
