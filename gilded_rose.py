@@ -7,7 +7,7 @@ class GildedRose(object):
 
     def update_quality(self):
         for item in self.items:
-            item.update_quality()
+            item.update()
 
 
 def make_item(*args, **kwargs):
@@ -35,9 +35,14 @@ class Item:
 
 
 class NormalItem(Item):
-    def update_quality(self):
+    def update(self):
+        self.update_sellin()
+        self.update_quality()
+
+    def update_sellin(self):
         self.sell_in -= 1
 
+    def update_quality(self):
         if self.sell_in < 0:
             self.quality -= 2
         else:
@@ -54,8 +59,6 @@ class NormalItem(Item):
 
 class AgedBrie(NormalItem):
     def update_quality(self):
-        self.sell_in -= 1
-
         if self.sell_in < 0:
             self.quality += 2
         else:
@@ -66,8 +69,6 @@ class AgedBrie(NormalItem):
 
 class BackstagePass(NormalItem):
     def update_quality(self):
-        self.sell_in -= 1
-
         if self.sell_in < 0:
             self.quality = 0
         elif self.sell_in < 5:
@@ -81,5 +82,8 @@ class BackstagePass(NormalItem):
 
 
 class Sulfuras(NormalItem):
+    def update_sellin(self):
+        pass
+
     def update_quality(self):
         pass
