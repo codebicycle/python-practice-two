@@ -19,9 +19,7 @@ class GildedRose(object):
             if item.sell_in <= 5:
                 increase_quality(item)
         else:
-            if item.quality > 0:
-                if item.name != "Sulfuras, Hand of Ragnaros":
-                    item.quality = item.quality - 1
+            decrease_quality(item)
         if item.name != "Sulfuras, Hand of Ragnaros":
             item.sell_in = item.sell_in - 1
         if item.sell_in < 0:
@@ -36,9 +34,15 @@ class GildedRose(object):
                 if item.quality < 50:
                     item.quality = item.quality + 1
 
+
 def increase_quality(item):
     if item.quality < 50:
         item.quality += 1
+
+def decrease_quality(item):
+    if item.quality > 0 and item.name != "Sulfuras, Hand of Ragnaros":
+        item.quality -= 1
+
 
 class Item:
     def __init__(self, name, sell_in, quality):
