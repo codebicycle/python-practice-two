@@ -26,11 +26,10 @@ class GildedRose(object):
         if item.sell_in < 0:
             if item.name == "Aged Brie":
                 increase_quality(item)
+            elif item.name == "Backstage passes to a TAFKAL80ETC concert":
+                item.quality = 0
             else:
-                if item.name == "Backstage passes to a TAFKAL80ETC concert":
-                    item.quality = 0
-                else:
-                    decrease_quality(item)
+                decrease_quality(item)
 
 
 def increase_quality(item):
