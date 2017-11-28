@@ -45,22 +45,12 @@ class Item:
 
 class NormalItem(Item):
     def update_quality(self):
-        if self.name == "Backstage passes to a TAFKAL80ETC concert":
-            increase_quality(self)
-            if self.sell_in <= 10:
-                increase_quality(self)
-            if self.sell_in <= 5:
-                increase_quality(self)
-        else:
-            decrease_quality(self)
+        decrease_quality(self)
 
         decrease_sell_in(self)
 
         if self.sell_in < 0:
-            if self.name == "Backstage passes to a TAFKAL80ETC concert":
-                self.quality = 0
-            else:
-                decrease_quality(self)
+            decrease_quality(self)
 
     def _validate_quality(self):
         if self.quality < 0:
