@@ -47,13 +47,14 @@ class Item:
 
 class NormalItem(Item):
     def update_quality(self):
-
-        decrease_quality(self)
-
-        decrease_sell_in(self)
+        self.sell_in -= 1
 
         if self.sell_in < 0:
-            decrease_quality(self)
+            self.quality -= 2
+        else:
+            self.quality -= 1
+
+        self._validate_quality()
 
     def _validate_quality(self):
         if self.quality < 0:
