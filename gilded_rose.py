@@ -28,7 +28,10 @@ def make_item(*args, **kwargs):
 
     if 'aged brie' in name:
         return AgedBrie(*args, **kwargs)
-    return NormalItem(*args, **kwargs)
+    elif 'backstage pass' in name:
+        return BackstagePass(*args, **kwargs)
+    else:
+        return NormalItem(*args, **kwargs)
 
 class Item:
     def __init__(self, name, sell_in, quality):
@@ -71,6 +74,22 @@ class AgedBrie(NormalItem):
         self.sell_in -= 1
 
         if self.sell_in < 0:
+            self.quality += 2
+        else:
+            self.quality += 1
+
+        self._validate_quality()
+
+
+class BackstagePass(NormalItem):
+    def update_quality(self):
+        self.sell_in -= 1
+
+        if self.sell_in < 0:
+            self.quality = 0
+        elif self.sell_in < 5:
+            self.quality += 3
+        elif self.sell_in < 10:
             self.quality += 2
         else:
             self.quality += 1
