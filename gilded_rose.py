@@ -59,6 +59,11 @@ class NormalItem(Item):
             else:
                 decrease_quality(self)
 
+    def _validate_quality(self):
+        if self.quality < 0:
+            self.quality = 0
+        if self.quality > 50:
+            self.quality = 50
 
 
 class AgedBrie(NormalItem):
@@ -69,3 +74,5 @@ class AgedBrie(NormalItem):
             self.quality += 2
         else:
             self.quality += 1
+
+        self._validate_quality()
