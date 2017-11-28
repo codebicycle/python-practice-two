@@ -30,6 +30,8 @@ def make_item(*args, **kwargs):
         return AgedBrie(*args, **kwargs)
     elif 'backstage pass' in name:
         return BackstagePass(*args, **kwargs)
+    elif 'sulfuras' in name:
+        return Sulfuras(*args, **kwargs)
     else:
         return NormalItem(*args, **kwargs)
 
@@ -45,6 +47,7 @@ class Item:
 
 class NormalItem(Item):
     def update_quality(self):
+
         decrease_quality(self)
 
         decrease_sell_in(self)
@@ -85,3 +88,8 @@ class BackstagePass(NormalItem):
             self.quality += 1
 
         self._validate_quality()
+
+
+class Sulfuras(NormalItem):
+    def update_quality(self):
+        pass
