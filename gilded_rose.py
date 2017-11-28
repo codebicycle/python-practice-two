@@ -20,8 +20,8 @@ class GildedRose(object):
                 increase_quality(item)
         else:
             decrease_quality(item)
-        if item.name != "Sulfuras, Hand of Ragnaros":
-            item.sell_in = item.sell_in - 1
+
+        decrease_sell_in(item)
         if item.sell_in < 0:
             if item.name != "Aged Brie":
                 if item.name != "Backstage passes to a TAFKAL80ETC concert":
@@ -42,6 +42,10 @@ def increase_quality(item):
 def decrease_quality(item):
     if item.quality > 0 and item.name != "Sulfuras, Hand of Ragnaros":
         item.quality -= 1
+
+def decrease_sell_in(item):
+    if item.name != "Sulfuras, Hand of Ragnaros":
+        item.sell_in -= 1
 
 
 class Item:
