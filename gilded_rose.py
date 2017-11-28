@@ -44,6 +44,13 @@ def decrease_sell_in(item):
     if item.name != "Sulfuras, Hand of Ragnaros":
         item.sell_in -= 1
 
+def make_item(*args, **kwargs):
+    name = kwargs['name'] if 'name' in kwargs else args[0]
+    name = name.lower()
+
+    if 'aged brie' in name:
+        return AgedBrie(*args, **kwargs)
+    return NormalItem(*args, **kwargs)
 
 class Item:
     def __init__(self, name, sell_in, quality):
@@ -53,3 +60,16 @@ class Item:
 
     def __repr__(self):
         return "%s, %s, %s" % (self.name, self.sell_in, self.quality)
+
+
+class NormalItem(Item):
+    def update_quality(self):
+        pass
+
+class AgedBrie(Item):
+    def update_quality(self):
+        self.sell_in -= 1
+        if self.sell_in < 0:
+            self.quality += 2
+        else:
+            self.quality += 1
