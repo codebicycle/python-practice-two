@@ -11,15 +11,12 @@ class GildedRose(object):
 
     def _update_helper(self, item):
         if item.name == "Aged Brie" or item.name == "Backstage passes to a TAFKAL80ETC concert":
-            if item.quality < 50:
-                item.quality = item.quality + 1
-                if item.name == "Backstage passes to a TAFKAL80ETC concert":
-                    if item.sell_in <= 10:
-                        if item.quality < 50:
-                            item.quality = item.quality + 1
-                    if item.sell_in <= 5:
-                        if item.quality < 50:
-                            item.quality = item.quality + 1
+            increase_quality(item)
+            if item.name == "Backstage passes to a TAFKAL80ETC concert":
+                if item.sell_in <= 10:
+                    increase_quality(item)
+                if item.sell_in <= 5:
+                    increase_quality(item)
         else:
             if item.quality > 0:
                 if item.name != "Sulfuras, Hand of Ragnaros":
@@ -38,6 +35,9 @@ class GildedRose(object):
                 if item.quality < 50:
                     item.quality = item.quality + 1
 
+def increase_quality(item):
+    if item.quality < 50:
+        item.quality += 1
 
 class Item:
     def __init__(self, name, sell_in, quality):
