@@ -7,29 +7,7 @@ class GildedRose(object):
 
     def update_quality(self):
         for item in self.items:
-            self._update_helper(item)
-
-    def _update_helper(self, item):
-        if item.name == "Aged Brie":
-            increase_quality(item)
-        elif item.name == "Backstage passes to a TAFKAL80ETC concert":
-            increase_quality(item)
-            if item.sell_in <= 10:
-                increase_quality(item)
-            if item.sell_in <= 5:
-                increase_quality(item)
-        else:
-            decrease_quality(item)
-
-        decrease_sell_in(item)
-
-        if item.sell_in < 0:
-            if item.name == "Aged Brie":
-                increase_quality(item)
-            elif item.name == "Backstage passes to a TAFKAL80ETC concert":
-                item.quality = 0
-            else:
-                decrease_quality(item)
+            item.update_quality()
 
 
 def increase_quality(item):
@@ -64,7 +42,27 @@ class Item:
 
 class NormalItem(Item):
     def update_quality(self):
-        pass
+        if self.name == "Aged Brie":
+            increase_quality(self)
+        elif self.name == "Backstage passes to a TAFKAL80ETC concert":
+            increase_quality(self)
+            if self.sell_in <= 10:
+                increase_quality(self)
+            if self.sell_in <= 5:
+                increase_quality(self)
+        else:
+            decrease_quality(self)
+
+        decrease_sell_in(self)
+
+        if self.sell_in < 0:
+            if self.name == "Aged Brie":
+                increase_quality(self)
+            elif self.name == "Backstage passes to a TAFKAL80ETC concert":
+                self.quality = 0
+            else:
+                decrease_quality(self)
+
 
 class AgedBrie(Item):
     def update_quality(self):
