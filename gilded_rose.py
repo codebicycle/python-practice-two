@@ -40,45 +40,41 @@ class NormalItem(Item):
         self.update_quality()
 
     def update_sellin(self):
-        self.sell_in -= 1
+        self._decrement_sellin()
 
     def update_quality(self):
+        self._decrement_quality()
         if self.sell_in < 0:
-            self.quality -= 2
-        else:
+            self._decrement_quality()
+
+    def _decrement_sellin(self):
+        self.sell_in -= 1
+
+    def _decrement_quality(self):
+        if self.quality > 0:
             self.quality -= 1
 
-        self._validate_quality()
-
-    def _validate_quality(self):
-        if self.quality < 0:
-            self.quality = 0
-        if self.quality > 50:
-            self.quality = 50
+    def _increment_quality(self):
+        if self.quality < 50:
+            self.quality += 1
 
 
 class AgedBrie(NormalItem):
     def update_quality(self):
+        self._increment_quality()
         if self.sell_in < 0:
-            self.quality += 2
-        else:
-            self.quality += 1
-
-        self._validate_quality()
+            self._increment_quality()
 
 
 class BackstagePass(NormalItem):
     def update_quality(self):
+        self._increment_quality()
+        if self.sell_in < 10:
+            self._increment_quality()
+        if self.sell_in < 5:
+            self._increment_quality()
         if self.sell_in < 0:
             self.quality = 0
-        elif self.sell_in < 5:
-            self.quality += 3
-        elif self.sell_in < 10:
-            self.quality += 2
-        else:
-            self.quality += 1
-
-        self._validate_quality()
 
 
 class Sulfuras(NormalItem):
