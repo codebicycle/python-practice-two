@@ -52,7 +52,22 @@ def solve_captcha(puzzle_input):
 
 
 def solve_captcha_circular(puzzle_input):
-    pass
+    puzzle_input = str(puzzle_input)
+    middle = len(puzzle_input) // 2
+    first_half = puzzle_input[:middle]
+    second_half = puzzle_input[middle:]
+
+    sum = 0
+
+    for i in range(len(first_half)):
+        if first_half[i] == second_half[i]:
+            sum += int(first_half[i])
+
+    for i in range(len(second_half)):
+        if second_half[i] == first_half[i]:
+            sum += int(second_half[i])
+
+    return sum
 
 
 def read_input(filename):
