@@ -24,3 +24,24 @@ What is the solution to your captcha?
 
 """
 
+
+def solve_captcha(puzzle_input):
+    puzzle_input = str(puzzle_input)
+    puzzle_input += puzzle_input[0]
+    sum = 0
+    for i in range(len(puzzle_input) - 1):
+        if puzzle_input[i] == puzzle_input[i+1]:
+            sum += int(puzzle_input[i])
+    return sum
+
+
+def main():
+    with open('input1.txt') as f:
+        puzzle_input = f.read().strip()
+
+    result = solve_captcha(puzzle_input)
+    print(result)
+
+
+if __name__ == '__main__':
+    main()
