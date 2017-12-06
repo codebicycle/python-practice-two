@@ -61,11 +61,7 @@ def solve_captcha_circular(puzzle_input):
 
     for i in range(len(first_half)):
         if first_half[i] == second_half[i]:
-            sum += int(first_half[i])
-
-    for i in range(len(second_half)):
-        if second_half[i] == first_half[i]:
-            sum += int(second_half[i])
+            sum += 2 * int(first_half[i])
 
     return sum
 
