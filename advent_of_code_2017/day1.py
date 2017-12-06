@@ -51,12 +51,23 @@ def solve_captcha(puzzle_input):
     return sum
 
 
-def main():
-    with open('input1.txt') as f:
+def solve_captcha_circular(puzzle_input):
+    pass
+
+
+def read_input(filename):
+    with open(filename) as f:
         puzzle_input = f.read().strip()
+    return puzzle_input
+
+def main():
+    puzzle_input = read_input('input1.txt')
 
     result = solve_captcha(puzzle_input)
-    print(result)
+    print(f'Part 1 solution: {result}')
+
+    result = solve_captcha_circular(puzzle_input)
+    print(f'Part 2 solution: {result}')
 
 
 if __name__ == '__main__':
