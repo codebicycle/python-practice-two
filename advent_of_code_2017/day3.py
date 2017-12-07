@@ -99,26 +99,20 @@ DIRECTIONS = {
     'west':  (-1,  0)
 }
 
-def populate(target_value):
-    squares = collections.defaultdict(int)
-    spiral = spiral_generator()
-    current = next(spiral)
-    value = 1
-    squares[current] = value
-    while value <= target_value:
-        current = next(spiral)
-        value = sum_neighbours(current, squares)
-        squares[current] = value
-    return squares, value
+def north(position):
+    return add_points(position, DIRECTIONS['north'])
 
+def east(position):
+    return add_points(position, DIRECTIONS['east'])
 
-def sum_neighbours(current_position, squares):
-    sum = 0
-    for vector in NEIGHBOURS:
-        neighbour_position = add_points(current_position, vector)
-        sum += squares[neighbour_position]
-    return sum
+def south(position):
+    return add_points(position, DIRECTIONS['south'])
 
+def west(position):
+    return add_points(position, DIRECTIONS['west'])
+
+def add_points(a, b):
+    return tuple(map(sum, zip(a, b)))
 
 def spiral_generator():
     current = (0, 0)
@@ -141,20 +135,38 @@ def spiral_generator():
             current = east(current)
             yield current
 
-def north(position):
-    return add_points(position, DIRECTIONS['north'])
 
-def east(position):
-    return add_points(position, DIRECTIONS['east'])
+class SpiralMemory:
+    _squares = collections.defaultdict(int)
 
-def south(position):
-    return add_points(position, DIRECTIONS['south'])
+    def populate(self, target_value):
+        """Populate spiral memory up to the first value larger than target_value.
+        Return position and value of the largest element.
+        """
+        spiral = spiral_generator()
+        current = next(spiral)
+        value = 1
+        self._squares[current] = value
+        while value <= target_value:
+            current = next(spiral)
+            value = self._sum_neighbours(current)
+            self._squares[current] = value
+        return current, value
 
-def west(position):
-    return add_points(position, DIRECTIONS['west'])
+    def _sum_neighbours(self, current_position):
+        sum = 0
+        for vector in NEIGHBOURS:
+            neighbour_position = add_points(current_position, vector)
+            sum += self._squares[neighbour_position]
+        return sum
 
-def add_points(a, b):
-    return tuple(map(sum, zip(a, b)))
+    def visualize(self):
+        spiral = spiral_generator()
+        memory_size = len(self._squares)
+        for i in range(memory_size):
+            position = next(spiral)
+            print(f'{position} {self._squares[position]}')
+
 
 def main():
     puzzle_input = 368078
@@ -162,8 +174,11 @@ def main():
     result = distance_to_center(puzzle_input)
     print(f'Part 1 solution: {result}')
 
-    _, result = populate(puzzle_input)
+    spiral_memory = SpiralMemory()
+    _, result = spiral_memory.populate(puzzle_input)
     print(f'Part 2 solution: {result}')
+
+    # spiral_memory.visualize()
 
 if __name__ == '__main__':
     main()
