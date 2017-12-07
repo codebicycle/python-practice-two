@@ -24,8 +24,50 @@ Your puzzle input is 368078.
 
 """
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
+
 def distance_to_center(puzzle_input):
-    pass
+    puzzle_input = int(puzzle_input)
+
+    previous_largest = 1
+    for ring_number in range(puzzle_input):
+        ring_largest_value = ring_size(ring_number) + previous_largest
+        if ring_largest_value >= puzzle_input:
+            break
+        previous_largest = ring_largest_value
+
+    log.debug(f'Ring {ring_number}, largest value {ring_largest_value}, '
+              f'previous largest {previous_largest}.')
+
+    middles = ring_sides_middles(ring_number, ring_largest_value)
+    distance_to_middle = distance_to_closest_middle(puzzle_input, middles)
+
+    return ring_number + distance_to_middle
+
+def ring_size(ring_number):
+    return 8 * ring_number
+
+def ring_side_length(ring_number):
+    return 2 * ring_number + 1
+
+def ring_sides_middles(ring_number, largest_value):
+    """Ring middles in clockwise order, from largest to smallest"""
+    side_length = ring_side_length(ring_number)
+    south = largest_value - side_length // 2
+    west = south - (side_length - 1)
+    north = west - (side_length - 1)
+    east = north - (side_length - 1)
+    log.debug(f'Ring {ring_number}, Middles: south {south}, '
+              f'west {west}, north {north}, east {east}.')
+    return south, west, north, east
+
+def distance_to_closest_middle(value, middles):
+    distances = [abs(value - middle) for middle in middles]
+    return min(distances)
 
 def main():
     puzzle_input = 368078
