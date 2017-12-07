@@ -30,21 +30,18 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
-def distance_to_center(puzzle_input):
-    puzzle_input = int(puzzle_input)
-
+def distance_to_center(value):
     previous_largest = 1
-    for ring_number in range(puzzle_input):
+    for ring_number in range(value):
         ring_largest_value = ring_size(ring_number) + previous_largest
-        if ring_largest_value >= puzzle_input:
+        if ring_largest_value >= value:
             break
         previous_largest = ring_largest_value
-
     log.debug(f'Ring {ring_number}, largest value {ring_largest_value}, '
               f'previous largest {previous_largest}.')
 
     middles = ring_sides_middles(ring_number, ring_largest_value)
-    distance_to_middle = distance_to_closest_middle(puzzle_input, middles)
+    distance_to_middle = distance_to_closest_middle(value, middles)
 
     return ring_number + distance_to_middle
 
