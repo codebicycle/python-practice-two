@@ -25,18 +25,26 @@ Given the initial block counts in your puzzle input, how many redistribution cyc
 import itertools
 
 def count_cycles(puzzle_input):
-    state = puzzle_input
+    state = tuple(puzzle_input)
     states = set()
     states.add(state)
     count = itertools.count(start=1)
-    for cycles in count:
+    for cycle_count in count:
         new_state = redistribute(state)
         if new_state in states:
-            return cycles, new_state
+            break
         states.add(new_state)
         state = new_state
 
+    return cycle_count, list(new_state)
+
 def redistribute(state):
+    """Memory reallocation
+    Args:
+        state (tuple)
+    Returns:
+        tuple
+    """
     state = list(state)
     blocks_to_redistribute = max(state)
     index_max = state.index(blocks_to_redistribute)
