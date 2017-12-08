@@ -21,22 +21,37 @@ At this point, we've reached a state we've seen before: 2 4 1 2 was already seen
 
 Given the initial block counts in your puzzle input, how many redistribution cycles must be completed before a configuration is produced that has been seen before?
 
+--- Part Two ---
+
+Out of curiosity, the debugger would also like to know the size of the loop: starting from a state that has already been seen, how many block redistribution cycles must be performed before that same state is seen again?
+
+In the example above, 2 4 1 2 is seen again after four cycles, and so the answer in that example would be 4.
+
+How many cycles are in the infinite loop that arises from the configuration in your puzzle input?
+
 """
 import itertools
 
 def count_cycles(puzzle_input):
+    """
+    Returns:
+        cycles_count: number of redistribution cycles that produces a configuration that has been seen before
+        cycles_in_loop: number of cycles in the loop
+        state: (list) final configuration after redistribution
+    """
     state = tuple(puzzle_input)
-    states = set()
-    states.add(state)
+    states = dict()
+    states[state] = 0
     count = itertools.count(start=1)
-    for cycle_count in count:
+    for cycles_count in count:
         new_state = redistribute(state)
         if new_state in states:
+            cycles_in_loop = cycles_count - states[new_state]
             break
-        states.add(new_state)
+        states[new_state] = cycles_count
         state = new_state
 
-    return cycle_count, list(new_state)
+    return cycles_count, cycles_in_loop, list(new_state)
 
 def redistribute(state):
     """Memory reallocation
@@ -70,9 +85,11 @@ def read_input(filename):
 def main():
     puzzle_input = read_input('input6.txt')
 
-    result, _ = count_cycles(puzzle_input)
+    result, _, _ = count_cycles(puzzle_input)
     print(f'Part 1 solution: {result}')
 
+    _, result, _ = count_cycles(puzzle_input)
+    print(f'Part 2 solution: {result}')
 
 if __name__ == '__main__':
     main()
