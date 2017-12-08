@@ -30,7 +30,7 @@ How many steps does it take to reach the exit?
 import itertools
 
 
-def steps_to_exit(puzzle_input):
+def steps_to_exit(puzzle_input, update_callback):
     state = puzzle_input.copy()
     current_index = 0
     count = itertools.count()
@@ -39,8 +39,11 @@ def steps_to_exit(puzzle_input):
             current_value = state[current_index]
         except IndexError:
             return steps_count, state
-        state[current_index] += 1
+        update_callback(current_index, state)
         current_index += current_value
+
+def increment(index, state):
+    state[index] += 1
 
 def read_input(filename):
     with open(filename) as f:
@@ -50,7 +53,7 @@ def read_input(filename):
 def main():
     puzzle_input = read_input('input5.txt')
 
-    result, _ = steps_to_exit(puzzle_input)
+    result, _ = steps_to_exit(puzzle_input, update_callback=increment)
     print(f'Part 1 solution: {result}')
 
 
