@@ -21,6 +21,10 @@ You might also encounter <= (less than or equal to) or != (not equal to). Howeve
 
 What is the largest value in any register after completing the instructions in your puzzle input?
 
+--- Part Two ---
+
+To be safe, the CPU also needs to know the highest value held in any register during this process so that it can decide how much memory to allocate to these operations. For example, in the above instructions, the highest value ever held was 10 (in register c after the third instruction was evaluated).
+
 """
 import collections
 import re
@@ -35,6 +39,7 @@ class CPU:
                             (?P<conditional_value>[-\d]+)''', re.VERBOSE)
 
     _registers = collections.defaultdict(int)
+    _highest_value = 0
 
     def _match(self, line):
         match = self.REGEX.match(line)
@@ -61,13 +66,19 @@ class CPU:
             else:
                 raise ValueError(f'Invalid modifier "{modifier}"')
 
+            if self._registers[register] > self._highest_value:
+                    self._highest_value = self._registers[register]
+
     def compute(self, lines):
         for line in lines:
             self._compute(line)
 
-    def max_value(self):
+    def current_max_value(self):
         values = self._registers.values()
         return max(values)
+
+    def highest_value(self):
+        return self._highest_value
 
 
 def read_lines(filename):
@@ -80,8 +91,11 @@ def main():
     cpu = CPU()
     cpu.compute(lines)
 
-    result = cpu.max_value()
+    result = cpu.current_max_value()
     print(f'Part 1 solution: {result}')
+
+    result = cpu.highest_value()
+    print(f'Part 2 solution: {result}')
 
 
 if __name__ == '__main__':
