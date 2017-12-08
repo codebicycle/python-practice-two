@@ -26,6 +26,14 @@ In this example, the exit is reached in 5 steps.
 
 How many steps does it take to reach the exit?
 
+--- Part Two ---
+
+Now, the jumps are even stranger: after each jump, if the offset was three or more, instead decrease it by 1. Otherwise, increase it by 1 as before.
+
+Using this rule with the above example, the process now takes 10 steps, and the offset values after finding the exit are left as 2 3 2 3 -1.
+
+How many steps does it now take to reach the exit?
+
 """
 import itertools
 
@@ -45,6 +53,12 @@ def steps_to_exit(puzzle_input, update_callback):
 def increment(index, state):
     state[index] += 1
 
+def decrement_or_increment(index, state):
+    if state[index] >= 3:
+        state[index] -= 1
+    else:
+        state[index] += 1
+
 def read_input(filename):
     with open(filename) as f:
         puzzle_input = [int(line) for line in f]
@@ -55,6 +69,9 @@ def main():
 
     result, _ = steps_to_exit(puzzle_input, update_callback=increment)
     print(f'Part 1 solution: {result}')
+
+    result, _ = steps_to_exit(puzzle_input, update_callback=decrement_or_increment)
+    print(f'Part 2 solution: {result}')
 
 
 if __name__ == '__main__':
