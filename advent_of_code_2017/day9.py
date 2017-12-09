@@ -42,30 +42,50 @@ Your goal is to find the total score for all groups in your input. Each group is
 {{<a!>},{<a!>},{<a!>},{<ab>}}, score of 1 + 2 = 3.
 What is the total score for all groups in your input?
 
+--- Part Two ---
+
+Now, you're ready to remove the garbage.
+
+To prove you've removed it, you need to count all of the characters within the garbage. The leading and trailing < and > don't count, nor do any canceled characters or the ! doing the canceling.
+
+<>, 0 characters.
+<random characters>, 17 characters.
+<<<<>, 3 characters.
+<{!>}>, 2 characters.
+<!!>, 0 characters.
+<!!!>>, 0 characters.
+<{o"i!a,<{i<a>, 10 characters.
+How many non-canceled characters are within the garbage in your puzzle input?
+
 """
 
 def clean_ignored_chars(stream):
     stream = list(stream)
     for index in range(len(stream) - 1):
-        if stream[index] == '!' and stream[index+1] in '<>!':
+        if stream[index] == '!':
             stream[index] = ''
             stream[index+1] = ''
-    return stream
+    cleaned = [char for char in stream if char != '']
+    return cleaned
 
-def clean_accolades_in_garbage(stream):
+def clean_garbage(stream):
     stream = list(stream)
-    for index, char in enumerate(stream):
-        if char == '<':
-            for index2, char2 in enumerate(stream[index:], start=index):
-                if char2 == '>':
-                    break
-                if char2 in '}{':
-                    stream[index2] = ''
+    stack = []
+    for index in range(len(stream)):
+        if stream[index] == '<':
+            if stack:
+                stream[index] = '0'
+            else:
+                stack.append('<')
+        elif stream[index] == '>':
+            stack.pop()
+        elif stack and stream[index] in '}{':
+            stream[index] = '0'
     return stream
 
 def clean(stream):
-    cleaned = clean_ignored_chars(stream)
-    cleaned = clean_accolades_in_garbage(cleaned)
+    temp = clean_ignored_chars(stream)
+    cleaned = clean_garbage(temp)
     return cleaned
 
 def score(stream):
@@ -79,6 +99,20 @@ def score(stream):
             stack.pop()
     return _score
 
+def count_cleaned(stream):
+    stream = list(stream)
+    count = 0
+    stack = []
+    for char in stream:
+        if char == '<':
+            stack.append(char)
+        elif char == '>':
+            stack.pop()
+        elif stack:
+            count += 1
+    return count
+
+
 def read_input(filename):
     with open(filename) as f:
         _input = f.read().strip()
@@ -90,6 +124,9 @@ def main():
     cleaned = clean(stream)
     result = score(cleaned)
     print(f'Part 1 solution: {result}')
+
+    result = count_cleaned(cleaned)
+    print(f'Part 2 solution: {result}')
 
 
 if __name__ == '__main__':
