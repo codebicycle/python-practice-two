@@ -67,10 +67,12 @@ Treating your puzzle input as a string of ASCII characters, what is the Knot Has
 
 def hash(numbers, lengths):
     numbers = numbers.copy()
-    skip_size = 0
-    current = 0
-    for length in lengths:
+    _, _ = hash_cycle(numbers, lengths, skip_size=0, current=0)
+    return numbers[0] * numbers[1]
 
+def hash_cycle(numbers, lengths, skip_size, current):
+    """Hash cycle. Modifies in place numbers"""
+    for length in lengths:
         selection = numbers[current:current+length]
         wrap = length - len(selection)
         selection += numbers[:wrap]
@@ -86,7 +88,7 @@ def hash(numbers, lengths):
         current = (current + length + skip_size) % len(numbers)
         skip_size += 1
 
-    return numbers[0] * numbers[1]
+    return skip_size, current
 
 def parse_ints(content):
     return [int(element) for element in content.split(',')]
@@ -106,22 +108,7 @@ def hash_multiple(numbers, lengths):
     current = 0
     skip_size = 0
     for _ in range(64):
-        for length in lengths:
-            selection = numbers[current:current+length]
-            wrap = length - len(selection)
-            selection += numbers[:wrap]
-
-            selection.reverse()
-
-            if wrap:
-                numbers[current:] = selection[:-wrap]
-                numbers[:wrap] = selection[-wrap:]
-            else:
-                numbers[current:current+length] = selection
-
-            current = (current + length + skip_size) % len(numbers)
-            skip_size += 1
-
+        skip_size, current = hash_cycle(numbers, lengths, skip_size, current)
     dense_hash = condense(numbers)
     return representation(dense_hash)
 
@@ -145,7 +132,6 @@ def reduce(iterable):
         result ^= element
     return result
 
-
 def main():
     puzzle_input = read_input('input10.txt')
     numbers = list(range(256))
@@ -157,6 +143,7 @@ def main():
     lengths = parse_bytes(puzzle_input)
     result = hash_multiple(numbers, lengths)
     print(f'Part 2 solution: {result}')
+
 
 if __name__ == '__main__':
     main()
