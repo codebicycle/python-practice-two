@@ -17,7 +17,7 @@ def test_basic(tmpdir):
     tmpdir.join('not-a-text-file').write(b'12345678', 'wb')
 
     grep_filepath = os.path.join(HERE, 'grep.py')
-    completed_process = subprocess.run([grep_filepath, 'one', '*.txt'],
+    completed_process = subprocess.run(['python', grep_filepath, 'one', '*.txt'],
                                        stdout=subprocess.PIPE)
     output = completed_process.stdout
 

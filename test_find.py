@@ -19,7 +19,7 @@ def test_basic(tmpdir):
     find_filepath = os.path.join(HERE, 'find.py')
     start_folder = '.'
     pattern = '*.txt'
-    completed_process = subprocess.run([find_filepath, start_folder, pattern],
+    completed_process = subprocess.run(['python', find_filepath, start_folder, pattern],
                                        stdout=subprocess.PIPE)
     output = completed_process.stdout
 
