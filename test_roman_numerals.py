@@ -1,12 +1,16 @@
 import csv
+import os
 
 import pytest
 
 from roman_numerals import roman
 
+HERE = os.path.dirname(__file__)
+
 @pytest.fixture
 def decimal_roman():
-    with open('roman_numerals.csv', 'r') as f:
+    filepath = os.path.join(HERE, 'roman_numerals.csv')
+    with open(filepath, 'r') as f:
         return list(csv.DictReader(f))
 
 
