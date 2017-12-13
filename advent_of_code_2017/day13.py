@@ -159,9 +159,121 @@ The severity of getting caught on a layer is equal to its depth multiplied by it
 
 Given the details of the firewall you've recorded, if you leave immediately, what is the severity of your whole trip?
 
-"""
-import collections
+--- Part Two ---
+Now, you need to pass through the firewall without being caught - easier said than done.
 
+You can't control the speed of the packet, but you can delay it any number of picoseconds. For each picosecond you delay the packet before beginning your trip, all security scanners move one step. You're not in the firewall during this time; you don't enter layer 0 until you stop delaying the packet.
+
+In the example above, if you delay 10 picoseconds (picoseconds 0 - 9), you won't get caught:
+
+State after delaying:
+ 0   1   2   3   4   5   6
+[ ] [S] ... ... [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+Picosecond 10:
+ 0   1   2   3   4   5   6
+( ) [S] ... ... [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+( ) [ ] ... ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 11:
+ 0   1   2   3   4   5   6
+[ ] ( ) ... ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[S] (S) ... ... [S] ... [S]
+[ ] [ ]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 12:
+ 0   1   2   3   4   5   6
+[S] [S] (.) ... [S] ... [S]
+[ ] [ ]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] (.) ... [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+
+Picosecond 13:
+ 0   1   2   3   4   5   6
+[ ] [ ] ... (.) [ ] ... [ ]
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [S] ... (.) [ ] ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+
+Picosecond 14:
+ 0   1   2   3   4   5   6
+[ ] [S] ... ... ( ) ... [ ]
+[ ] [ ]         [ ]     [ ]
+[S]             [S]     [S]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... ( ) ... [ ]
+[S] [S]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [S]     [S]
+
+
+Picosecond 15:
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] (.) [ ]
+[S] [S]         [ ]     [ ]
+[ ]             [ ]     [ ]
+                [S]     [S]
+
+ 0   1   2   3   4   5   6
+[S] [S] ... ... [ ] (.) [ ]
+[ ] [ ]         [ ]     [ ]
+[ ]             [S]     [S]
+                [ ]     [ ]
+
+
+Picosecond 16:
+ 0   1   2   3   4   5   6
+[S] [S] ... ... [ ] ... ( )
+[ ] [ ]         [ ]     [ ]
+[ ]             [S]     [S]
+                [ ]     [ ]
+
+ 0   1   2   3   4   5   6
+[ ] [ ] ... ... [ ] ... ( )
+[S] [S]         [S]     [S]
+[ ]             [ ]     [ ]
+                [ ]     [ ]
+Because all smaller delays would get you caught, the fewest number of picoseconds you would need to delay to get through safely is 10.
+
+What is the fewest number of picoseconds that you need to delay the packet to pass through the firewall without being caught?
+
+"""
 def calculate_severity(state):
     severity = 0
     for layer in state:
@@ -182,14 +294,28 @@ def read_input(filename):
                  for line in f]
     return state
 
+def calculate_delay(state):
+    delay = 0
+    while True:
+        tick = 0
+        for layer in state:
+            depth, _range = layer
+            tick += (depth - tick)
+            if is_collision(delay+tick, _range):
+                break   # Break for loop
+        else:
+            break   # Break while loop
+        delay += 1
+    return delay
+
 def main():
     state = read_input('input13.txt')
 
     result = calculate_severity(state)
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+    result = calculate_delay(state)
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
