@@ -25,8 +25,6 @@ ne,ne,s,s is 2 steps away (se,se).
 se,sw,se,sw,sw is 3 steps away (s,s,sw).
 
 """
-import math
-
 DIRECTIONS = {
     'n':  ( 0,  2),
     'ne': ( 2,  1),
@@ -35,7 +33,6 @@ DIRECTIONS = {
     'sw': (-2, -1),
     'nw': (-2,  1)
 }
-VECTORS = {value: key for key, value in DIRECTIONS.items()}
 
 def destination(path):
     vectors = convert_to_vector(path)
@@ -47,6 +44,17 @@ def distance(point):
     dx = x / 2
     dy = max(0, (y - dx) / 2)
     return int(dx + dy)
+
+def furthest_traveled(path):
+    current = (0, 0)
+    furthest = 0
+    vector_path = convert_to_vector(path)
+    for step in vector_path:
+        current = add_tuples(current, step)
+        traveled = distance(current)
+        if traveled > furthest:
+            furthest = traveled
+    return furthest
 
 def convert_to_vector(path):
     return [DIRECTIONS[d] for d in path]
@@ -65,8 +73,8 @@ def main():
     result = distance(finish)
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+    result = furthest_traveled(path)
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
