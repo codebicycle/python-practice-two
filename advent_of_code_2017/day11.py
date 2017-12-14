@@ -35,8 +35,8 @@ DIRECTIONS = {
 }
 
 def destination(path):
-    vectors = convert_to_vector(path)
-    finish = add_tuples(*vectors)
+    vector_path = convert_to_vector(path)
+    finish = add_tuples(*vector_path)
     return finish
 
 def distance(point):
