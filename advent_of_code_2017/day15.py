@@ -42,17 +42,25 @@ After 40 million pairs, what is the judge's final count?
 MASK = 16*'0' + 16*'1'
 MASK_INT = int(MASK, 2)
 
-def generator_factory(factor):
+def generator_factory(factor, is_valid=None):
     def generator(start):
         previous = start
         while True:
             remainder = (previous * factor) % 2147483647
-            yield remainder
+            if is_valid is None:
+                yield remainder
+            elif is_valid(remainder):
+                yield remainder
             previous = remainder
     return generator
 
-def count(first_generator, second_generator):
-    pairs = 40_000_000
+def is_divisible_by_eight(i):
+    return not i & 7
+
+def is_divisible_by_four(i):
+    return not i & 3
+
+def count(first_generator, second_generator, pairs):
     matches = 0
     for _ in range(pairs):
         if next(first_generator) & MASK_INT == next(second_generator) & MASK_INT:
@@ -68,11 +76,19 @@ def main():
     a = a_generator(start=A_INPUT)
     b = b_generator(start=B_INPUT)
 
-    result = count(a, b)
+    pairs = 40_000_000
+    result = count(a, b, pairs)
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+
+    a_generator = generator_factory(factor=16807, is_valid=is_divisible_by_four)
+    b_generator = generator_factory(factor=48271, is_valid=is_divisible_by_eight)
+    a = a_generator(start=A_INPUT)
+    b = b_generator(start=B_INPUT)
+
+    pairs = 5_000_000
+    result = count(a, b, pairs)
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
