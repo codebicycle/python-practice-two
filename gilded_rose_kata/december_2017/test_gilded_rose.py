@@ -1,7 +1,7 @@
-from gilded_rose import Item, GildedRose
+from gilded_rose import Item, GildedRose, make_item
 
 def test_foo():
-    items = [Item("foo", 0, 0)]
+    items = [make_item("foo", 0, 0)]
     gilded_rose = GildedRose(items)
     gilded_rose.update_quality()
-    assert 'fixme' == items[0].name
+    assert 'foo' == items[0].name
