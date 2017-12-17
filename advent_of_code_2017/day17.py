@@ -31,6 +31,17 @@ What is the value after 2017 in your completed circular buffer?
 
 Your puzzle input is 304.
 
+--- Part Two ---
+The spinlock does not short-circuit. Instead, it gets more angry. At least, you assume that's what happened; it's spinning significantly faster than it was a moment ago.
+
+You have good news and bad news.
+
+The good news is that you have improved calculations for how to stop the spinlock. They indicate that you actually need to identify the value after 0 in the current state of the circular buffer.
+
+The bad news is that while you were determining this, the spinlock has just finished inserting its fifty millionth value (50000000).
+
+What is the value after 0 the moment 50000000 is inserted?
+
 """
 def spinlock(times, step):
     state = [0]
@@ -53,14 +64,14 @@ def value_after_zero(times, step):
 
     """
     value_at_index_one = None
-    virtual_length = 1
+    virtual_length = 1  # Remember 0 is at index zero
     position = 0
     for value in range(1, times+1):
         insertion_index = ((position + step) % virtual_length) + 1
         if insertion_index == 1:
             value_at_index_one = value
-        position = insertion_index
         virtual_length += 1
+        position = insertion_index
     return value_at_index_one
 
 def read_input(filename):
