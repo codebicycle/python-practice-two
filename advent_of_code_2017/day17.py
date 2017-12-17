@@ -46,6 +46,23 @@ def value_after(value, state):
     next_position = (position + 1) % len(state)
     return state[next_position]
 
+def value_after_zero(times, step):
+    """Compute the value after 0 from the spinlock algorithm.
+    0 is always on the first position, index zero.
+    The value after 0 sits at index one.
+
+    """
+    value_at_index_one = None
+    virtual_length = 1
+    position = 0
+    for value in range(1, times+1):
+        insertion_index = ((position + step) % virtual_length) + 1
+        if insertion_index == 1:
+            value_at_index_one = value
+        position = insertion_index
+        virtual_length += 1
+    return value_at_index_one
+
 def read_input(filename):
     with open(filename) as f:
         puzzle_input = int(f.read())
@@ -58,10 +75,9 @@ def main():
     result = value_after(2017, state_2017)
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+    result = value_after_zero(times=50_000_000, step=puzzle_input)
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
     main()
-
