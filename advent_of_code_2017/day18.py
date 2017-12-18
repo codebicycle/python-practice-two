@@ -37,8 +37,36 @@ At the time the recover operation is executed, the frequency of the last sound p
 
 What is the value of the recovered frequency (the value of the most recently played sound) the first time a rcv instruction is executed with a non-zero value?
 
+--- Part Two ---
+As you congratulate yourself for a job well done, you notice that the documentation has been on the back of the tablet this entire time. While you actually got most of the instructions correct, there are a few key differences. This assembly code isn't about sound at all - it's meant to be run twice at the same time.
+
+Each running copy of the program has its own set of registers and follows the code independently - in fact, the programs don't even necessarily run at the same speed. To coordinate, they use the send (snd) and receive (rcv) instructions:
+
+snd X sends the value of X to the other program. These values wait in a queue until that program is ready to receive them. Each program has its own message queue, so a program can never receive a message it sent.
+rcv X receives the next value and stores it in register X. If no values are in the queue, the program waits for a value to be sent to it. Programs do not continue to the next instruction until they have received a value. Values are received in the order they are sent.
+Each program also has its own program ID (one 0 and the other 1); the register p should begin with this value.
+
+For example:
+
+snd 1
+snd 2
+snd p
+rcv a
+rcv b
+rcv c
+rcv d
+Both programs begin by sending three values to the other. Program 0 sends 1, 2, 0; program 1 sends 1, 2, 1. Then, each program receives a value (both 1) and stores it in a, receives another value (both 2) and stores it in b, and then each receives the program ID of the other program (program 0 receives 1; program 1 receives 0) and stores it in c. Each program now sees a different value in its own copy of register c.
+
+Finally, both programs try to rcv a fourth time, but no data is waiting for either of them, and they reach a deadlock. When this happens, both programs terminate.
+
+It should be noted that it would be equally valid for the programs to run at different speeds; for example, program 0 might have sent all three values and then stopped at the first rcv before program 1 executed even its first instruction.
+
+Once both of your programs have terminated (regardless of what caused them to do so), how many times did program 1 send a value?
+
 """
 from collections import defaultdict
+import queue
+import threading
 
 
 class Interpreter:
@@ -117,6 +145,49 @@ class Interpreter:
         if self.recovered:
             return self.recovered
 
+class CooperativeInterpreter(Interpreter):
+    COMMANDS = Interpreter.COMMANDS.copy()
+    COMMANDS.update({'snd': 'send',
+                     'rcv': 'receive',})
+
+    def __init__(self, _id, in_queue, out_queue):
+        self.id = _id
+        self.in_queue = in_queue
+        self.out_queue = out_queue
+        self.registers = defaultdict(int)
+        self.registers['p'] = self.id
+
+    def run(self, instructions):
+        self.instructions = instructions
+        self.current = 0
+        while True:
+            if not self.is_index_valid():
+                break
+            instruction_code, args = self.instructions[self.current]
+            command_name = self.COMMANDS[instruction_code]
+            command = getattr(self, command_name)
+            try:
+                command(*args)
+            except queue.Empty:
+                break
+            if command != self.jump:
+                self.current += 1
+
+    def is_index_valid(self):
+        return 0 <= self.current < len(self.instructions)
+
+    def send(self, x):
+        self.registers['send_count'] += 1
+        x = self._value(x)
+        self.out_queue.put(x)
+
+    def receive(self, x):
+        value = self.in_queue.get(timeout=1)
+        self.set_register(x, value)
+
+    def get_send_count(self):
+        return self.registers['send_count']
+
 
 def read_input(filename):
     with open(filename) as f:
@@ -140,8 +211,23 @@ def main():
     result = interpreter.get_recovered()
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+    queue_0 = queue.Queue()
+    queue_1 = queue.Queue()
+
+    program_0 = CooperativeInterpreter(_id=0, in_queue=queue_0, out_queue=queue_1)
+    program_1 = CooperativeInterpreter(_id=1, in_queue=queue_1, out_queue=queue_0)
+
+    thread_0 = threading.Thread(target=program_0.run, args=(instructions,))
+    thread_1 = threading.Thread(target=program_1.run, args=(instructions,))
+
+    thread_0.start()
+    thread_1.start()
+
+    thread_0.join()
+    thread_1.join()
+
+    result = program_1.get_send_count()
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
