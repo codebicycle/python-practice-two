@@ -80,30 +80,35 @@ class Interpreter:
         'jgz': 'jump',
     }
 
-    def __init__(self):
+    def __init__(self, instructions):
         self.registers = defaultdict(int)
         self.stack = []
-        self.current = 0
         self.recovered = None
-
-    def run(self, instructions):
         self.instructions = instructions
-        while True:
-            if self.current < 0 or self.current >= len(self.instructions):
-                return
-            instruction_code, args = self.instructions[self.current]
-            command_name = self.COMMANDS[instruction_code]
-            command = getattr(self, command_name)
-            command(*args)
+        self.current = 0
+
+    def run(self):
+        while self.is_index_valid():
+            method, args = self._get_method()
+            method(*args)
             if self.recovered:
                 break
-            if command != self.jump:
+            if method != self.jump:
                 self.current += 1
+
+    def _get_method(self):
+        instruction_code, args = self.instructions[self.current]
+        command_name = self.COMMANDS[instruction_code]
+        method = getattr(self, command_name)
+        return method, args
 
     def _value(self, x):
         if isinstance(x, str):
             return self.registers[x]
         return x
+
+    def is_index_valid(self):
+        return  0 <= self.current < len(self.instructions)
 
     def sound(self, x):
         x = self._value(x)
@@ -131,7 +136,6 @@ class Interpreter:
         if x != 0:
             value = self.stack[-1]
             self.recovered = value
-            return value
 
     def jump(self, x, y):
         x = self._value(x)
@@ -150,31 +154,24 @@ class CooperativeInterpreter(Interpreter):
     COMMANDS.update({'snd': 'send',
                      'rcv': 'receive',})
 
-    def __init__(self, _id, in_queue, out_queue):
+    def __init__(self, _id, instructions, in_queue, out_queue):
         self.id = _id
         self.in_queue = in_queue
         self.out_queue = out_queue
         self.registers = defaultdict(int)
         self.registers['p'] = self.id
-
-    def run(self, instructions):
         self.instructions = instructions
         self.current = 0
-        while True:
-            if not self.is_index_valid():
-                break
-            instruction_code, args = self.instructions[self.current]
-            command_name = self.COMMANDS[instruction_code]
-            command = getattr(self, command_name)
+
+    def run(self):
+        while self.is_index_valid():
+            method, args = self._get_method()
             try:
-                command(*args)
+                method(*args)
             except queue.Empty:
                 break
-            if command != self.jump:
+            if method != self.jump:
                 self.current += 1
-
-    def is_index_valid(self):
-        return 0 <= self.current < len(self.instructions)
 
     def send(self, x):
         self.registers['send_count'] += 1
@@ -206,23 +203,21 @@ def parse(line):
 def main():
     instructions = read_input('input18.txt')
 
-    interpreter = Interpreter()
-    interpreter.run(instructions)
+    interpreter = Interpreter(instructions)
+    interpreter.run()
     result = interpreter.get_recovered()
     print('Part 1 solution:', result)
 
     queue_0 = queue.Queue()
     queue_1 = queue.Queue()
-
-    program_0 = CooperativeInterpreter(_id=0, in_queue=queue_0, out_queue=queue_1)
-    program_1 = CooperativeInterpreter(_id=1, in_queue=queue_1, out_queue=queue_0)
-
-    thread_0 = threading.Thread(target=program_0.run, args=(instructions,))
-    thread_1 = threading.Thread(target=program_1.run, args=(instructions,))
-
+    program_0 = CooperativeInterpreter(_id=0, instructions=instructions,
+                                       in_queue=queue_0, out_queue=queue_1)
+    program_1 = CooperativeInterpreter(_id=1, instructions=instructions,
+                                       in_queue=queue_1, out_queue=queue_0)
+    thread_0 = threading.Thread(target=program_0.run)
+    thread_1 = threading.Thread(target=program_1.run)
     thread_0.start()
     thread_1.start()
-
     thread_0.join()
     thread_1.join()
 
