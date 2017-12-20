@@ -96,6 +96,13 @@ class Node:
             self.children = []
         self.children.append(child)
 
+    def postorder(self):
+        if self.children:
+            for child in self.children:
+                for node in child.postorder():
+                    yield node
+        yield self
+
     def _set_total_weight(self):
         if not self.children:
             self.total_weight = self.weight
@@ -184,19 +191,11 @@ class Tree:
     def __str__(self):
         return f'<Tree root:{self.root}>'
 
-    def traverse(self):
-        bfs = []
-        queue = deque()
-        queue.append(self.root)
-        while queue:
-            current = queue.popleft()
-            bfs.append(current)
-            if current.children:
-                queue.extend(current.children)
-        return reversed(bfs)
+    def postorder(self):
+        return self.root.postorder()
 
     def balanced_weight(self):
-        for node in self.traverse():
+        for node in self.postorder():
             weight = node.balanced_weight()
             if weight:
                 return weight
