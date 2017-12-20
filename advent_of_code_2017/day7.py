@@ -126,7 +126,7 @@ class Node:
             return unbalanced_child.weight + difference
 
     def __repr__(self):
-        return f'{self.name} {self.weight} {self.total_weight} {self.children}'
+        return f'{self.name}'
 
 
 class TreeBuilder:
@@ -181,8 +181,8 @@ class Tree:
     def __init__(self, root):
         self.root = root
 
-    def __repr__(self):
-        return str(self.root)
+    def __str__(self):
+        return f'<Tree root:{self.root}>'
 
     def traverse(self):
         bfs = []
