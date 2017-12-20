@@ -85,24 +85,28 @@ def parents_children(lines):
 
 
 class Node:
-    def __init__(self, name, weight, children=None):
+    def __init__(self, name, weight):
         self.name = name
         self.weight = int(weight)
-        self.children = children or []
+        self.children = None
         self.total_weight = None
 
-    def set_total_weight(self):
+    def add_child(self, child):
+        if self.children is None:
+            self.children = []
+        self.children.append(child)
+
+    def _set_total_weight(self):
         if not self.children:
             self.total_weight = self.weight
             return
 
         for child in self.children:
             if not child.total_weight:
-                child.set_total_weight()
+                child._set_total_weight()
 
         children_total_weights = [child.total_weight for child in self.children]
         self.total_weight = self.weight + sum(children_total_weights)
-
 
     def balanced_weight(self):
         if not self.children:
@@ -128,19 +132,18 @@ class Node:
 class TreeBuilder:
     PATTERN = r'(\w+) \((\d+)\)(?: -> ([\w, ]+))?'
 
-    def __init__(self):
-        self.incomplete = {}
-        self.parents = {}
-        self.trees = {}
+    def __init__(self, instructions):
+        self.instructions = instructions
+        self.pending = {}
+        self.nodes = {}
 
-    def parse(self, lines):
-        for line in lines:
+    def parse_instructions(self):
+        for line in self.instructions:
             name, weight, children_names = self._parse_line(line)
             if children_names:
-                self.incomplete[name] = Node(name, weight)
-                self.parents[name] = children_names
+                self.pending[name] = name, weight, children_names
             else:
-                self.trees[name] = Node(name, weight)
+                self.nodes[name] = Node(name, weight)
 
     def _parse_line(self, line):
         match = re.match(self.PATTERN, line)
@@ -149,23 +152,28 @@ class TreeBuilder:
         return name, weight, children_names
 
     def build(self):
-        while self.incomplete:
-            _, current = self.incomplete.popitem()
-            tree = self._build_node(current)
-            self.trees[tree.name] = tree
+        self.parse_instructions()
 
-        _, root = self.trees.popitem()
-        return Tree(root)
+        while self.pending:
+            _, specification = self.pending.popitem()
+            node = self._build_node(specification)
+            self.nodes[node.name] = node
 
-    def _build_node(self, node):
-        for child_name in self.parents[node.name]:
-            if child_name in self.trees:
-                child = self.trees.pop(child_name)
-                node.children.append(child)
-            else:
-                child = self.incomplete.pop(child_name)
-                tree = self._build_node(child)
-                node.children.append(tree)
+        _, root = self.nodes.popitem()
+
+        tree = Tree(root)
+        tree.root._set_total_weight()
+        return tree
+
+    def _build_node(self, specification):
+        name, weight, children_names = specification
+        node = Node(name, weight)
+        for child_name in children_names:
+            child = self.nodes.pop(child_name, None)
+            if child is None:
+                child_specification = self.pending.pop(child_name)
+                child = self._build_node(child_specification)
+            node.add_child(child)
         return node
 
 
@@ -206,10 +214,8 @@ def main():
     result = (parents - children).pop()
     print(f'Part 1 solution: {result}')
 
-    tree_builder = TreeBuilder()
-    tree_builder.parse(lines)
+    tree_builder = TreeBuilder(instructions=lines)
     tree = tree_builder.build()
-    tree.root.set_total_weight()
 
     result = tree.balanced_weight()
     print(f'Part 2 solution: {result}')
