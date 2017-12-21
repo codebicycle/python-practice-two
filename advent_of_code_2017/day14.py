@@ -30,25 +30,34 @@ Given your actual key string, how many squares are used?
 from day10 import knot_hash
 
 
-def build_grid(key):
-    state = []
-    for i in range(128):
-        row_key = f'{key}-{i}'
-        row_hash = knot_hash(row_key)
-        row = to_binary(row_hash)
-        state.append(row)
-    return state
+class GridBuilder:
+    def build(self, key):
+        state = []
+        for i in range(128):
+            row_key = f'{key}-{i}'
+            row_hash = knot_hash(row_key)
+            row = self._to_binary(row_hash)
+            state.append(row)
 
-def count(grid):
-    """Count used sqares in grid"""
-    return sum(row.count('1') for row in grid)
+        return Grid(state)
 
-def to_binary(hex_string):
-    accumulator = []
-    for char in hex_string:
-        x = int(char, 16)
-        accumulator.append(f'{x:04b}')
-    return ''.join(accumulator)
+    def _to_binary(self, hex_string):
+        accumulator = []
+        for char in hex_string:
+            x = int(char, 16)
+            accumulator.append(f'{x:04b}')
+        return ''.join(accumulator)
+
+
+class Grid:
+    def __init__(self, state):
+        self.state = state
+
+    def count_used(self):
+        return sum(row.count('1') for row in self.state)
+
+    def __str__(self):
+        return '\n'.join(self.state)
 
 def read_input(filename):
     with open(filename) as f:
@@ -59,9 +68,8 @@ def read_input(filename):
 def main():
     puzzle_input = read_input('input14.txt')
 
-
-    grid = build_grid(key=puzzle_input)
-    result = count(grid)
+    grid = GridBuilder().build(key=puzzle_input)
+    result = grid.count_used()
     print('Part 1 solution:', result)
 
     # result =
