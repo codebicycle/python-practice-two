@@ -98,13 +98,8 @@ def parse_bytes(content):
     lengths = list(lengths) + [17, 31, 73, 47, 23]
     return lengths
 
-def read_input(filename):
-    with open(filename) as f:
-        content = f.read().strip()
-    return content
-
 def hash_multiple(numbers, lengths):
-    numbers = numbers.copy()
+    numbers = list(numbers)
     current = 0
     skip_size = 0
     for _ in range(64):
@@ -132,6 +127,17 @@ def reduce(iterable):
         result ^= element
     return result
 
+def knot_hash(key):
+    key_bytes = parse_bytes(key)
+    numbers = range(256)
+    return hash_multiple(numbers, key_bytes)
+
+
+def read_input(filename):
+    with open(filename) as f:
+        content = f.read().strip()
+    return content
+
 def main():
     puzzle_input = read_input('input10.txt')
     numbers = list(range(256))
@@ -140,8 +146,7 @@ def main():
     result = hash(numbers, lengths)
     print(f'Part 1 solution: {result}')
 
-    lengths = parse_bytes(puzzle_input)
-    result = hash_multiple(numbers, lengths)
+    result = knot_hash(puzzle_input)
     print(f'Part 2 solution: {result}')
 
 
