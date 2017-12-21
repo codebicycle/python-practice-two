@@ -36,12 +36,13 @@ class GridBuilder:
         for i in range(128):
             row_key = f'{key}-{i}'
             row_hash = knot_hash(row_key)
-            row = self._to_binary(row_hash)
+            row = self._hex_to_binary(row_hash)
             state.append(list(row))
 
         return Grid(state)
 
-    def _to_binary(self, hex_string):
+    def _hex_to_binary(self, hex_string):
+        """Binary representation of hex_string."""
         accumulator = []
         for char in hex_string:
             x = int(char, 16)
@@ -50,8 +51,16 @@ class GridBuilder:
 
 
 class Grid:
+    # Grid origin: top left corner
+    NORTH = ( 0, -1)
+    SOUTH = ( 0,  1)
+    EAST =  ( 1,  0)
+    WEST =  (-1,  0)
+    DIRECTIONS = {NORTH, EAST, SOUTH, WEST}
+
     def __init__(self, state):
         self.state = state
+        self.clusters = []
 
     def count_used(self):
         return sum(row.count('1') for row in self.state)
@@ -61,11 +70,69 @@ class Grid:
                        for row in self.state]
         return '\n'.join(''.join(row) for row in alternative)
 
+    def get_cluster(self, position):
+        pending = {position}
+        cluster = set()
+        while pending:
+            current = pending.pop()
+            cluster.add(current)
+            for neighbour in self.neighbours(current):
+                if neighbour not in cluster:
+                    pending.add(neighbour)
+        return cluster
+
+    def positions(self):
+        """Generate all non-zero positions from grid."""
+        height = len(self.state)
+        width = len(self.state[0])
+        for y in range(height):
+            for x in range(width):
+                if self.state[y][x] != '0':
+                    yield x, y
+
+    def clusterize(self):
+        seen = set()
+        for position in self.positions():
+            if position in seen:
+                continue
+            cluster = self.get_cluster(position)
+            self.clusters.append(cluster)
+            seen.update(cluster)
+
+    def neighbours(self, position):
+        """Generate non-zero neighbouring positions."""
+        for adjacent in self.adjacent_positions(position):
+            x, y = adjacent
+            try:
+                value = self.state[y][x]
+            except IndexError:
+                continue
+            if value != '0':
+                yield adjacent
+
+    def adjacent_positions(self, position):
+        """Generate adjacent positions.
+        Guard against negative indices.
+        """
+        for direction in self.DIRECTIONS:
+            x, y = add_tuples(position, direction)
+            if x >= 0 and y >= 0:
+                yield x, y
+
+    def count_clusters(self):
+        return len(self.clusters)
+
+
+def add_tuples(*tuples):
+   return tuple(map(sum, zip(*tuples)))
+
+
 def read_input(filename):
     with open(filename) as f:
         puzzle_input = f.read().strip()
 
     return puzzle_input
+
 
 def main():
     puzzle_input = read_input('input14.txt')
@@ -74,8 +141,9 @@ def main():
     result = grid.count_used()
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+    grid.clusterize()
+    result = grid.count_clusters()
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
