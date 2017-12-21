@@ -37,7 +37,7 @@ class GridBuilder:
             row_key = f'{key}-{i}'
             row_hash = knot_hash(row_key)
             row = self._to_binary(row_hash)
-            state.append(row)
+            state.append(list(row))
 
         return Grid(state)
 
@@ -57,7 +57,9 @@ class Grid:
         return sum(row.count('1') for row in self.state)
 
     def __str__(self):
-        return '\n'.join(self.state)
+        alternative = [['.' if char == '0' else '#' for char in row]
+                       for row in self.state]
+        return '\n'.join(''.join(row) for row in alternative)
 
 def read_input(filename):
     with open(filename) as f:
