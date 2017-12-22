@@ -32,6 +32,7 @@ At this point, particle 1 will never be closer to <0,0,0> than particle 0, and s
 Which particle will stay closest to position <0,0,0> in the long term?
 
 """
+from collections import defaultdict
 import re
 from pprint import pprint
 
@@ -71,6 +72,34 @@ class Swarm:
     def _distance_from_origin(self, position):
         return sum(map(abs, position))
 
+    def count_particles_after(self, ticks):
+        particles = self.particles.copy()
+
+        for tick in range(ticks):
+            positions = {}
+            collisions = defaultdict(list)
+            for index, particle in enumerate(particles):
+                if particle:
+                    position = particle.position_at(tick)
+                    if position in collisions:
+                        collisions[position].append(index)
+                    elif position in positions:
+                        collisions[position].append(positions[position])
+                        collisions[position].append(index)
+                    else:
+                        positions[position] = index
+
+            for _, collision_indices in collisions.items():
+                for index in collision_indices:
+                    particles[index] = None
+
+        return self._count_particles(particles)
+
+    @staticmethod
+    def _count_particles(particle_list):
+        """Count """
+        return sum(map(bool, particle_list))
+
 
 def distance(tick, velocity, acceleration):
     return tick * (velocity + acceleration) + 1/2 * (tick - 1) * tick * acceleration
@@ -98,8 +127,10 @@ def main():
     result = swarm.closest_to_origin_at(TICK)
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+
+    TICK = 1_000
+    result = swarm.count_particles_after(TICK)
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
