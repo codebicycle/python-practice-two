@@ -33,15 +33,24 @@ Which particle will stay closest to position <0,0,0> in the long term?
 
 """
 import re
+from pprint import pprint
 
 
 PATTERN = r'<([-,\d]+)>'
+
 
 class Particle:
     def __init__(self, position, velocity, acceleration):
         self.position = position
         self.velocity = velocity
         self.acceleration = acceleration
+
+    def position_at(self, tick):
+        THREE_DIMMENSIONS = 3
+        new_position = [None] * THREE_DIMMENSIONS
+        for i in range(THREE_DIMMENSIONS):
+            new_position[i] = self.position[i] + distance(tick, self.velocity[i], self.acceleration[i])
+        return tuple(new_position)
 
 
 class Swarm:
@@ -53,6 +62,18 @@ class Swarm:
         for particle_components in particle_components_list:
             self.particles.append(Particle(*particle_components))
 
+    def closest_to_origin_at(self, tick):
+        positions = [particle.position_at(tick) for particle in self.particles]
+        # pprint(sorted((self._distance_from_origin(position), index, position)
+        #               for index, position in enumerate(positions)))
+        return positions.index(min(positions, key=self._distance_from_origin))
+
+    def _distance_from_origin(self, position):
+        return sum(map(abs, position))
+
+
+def distance(tick, velocity, acceleration):
+    return tick * (velocity + acceleration) + 1/2 * (tick - 1) * tick * acceleration
 
 def read_input(filename):
     """List of particle components: position, velocity, acceleration.
@@ -72,10 +93,10 @@ def main():
 
     swarm = Swarm()
     swarm.build(puzzle_input)
-    print(swarm)
 
-    # result = puzzle_input
-    # print('Part 1 solution:', result)
+    TICK = 10_000
+    result = swarm.closest_to_origin_at(TICK)
+    print('Part 1 solution:', result)
 
     # result =
     # print('Part 2 solution:', result)
