@@ -86,7 +86,94 @@ After a total of 10000 bursts of activity, 5587 bursts will have caused an infec
 
 Given your actual map, after 10000 bursts of activity, how many bursts cause a node to become infected? (Do not count nodes that begin infected.)
 
+--- Part Two ---
+As you go to remove the virus from the infected nodes, it evolves to resist your attempt.
+
+Now, before it infects a clean node, it will weaken it to disable your defenses. If it encounters an infected node, it will instead flag the node to be cleaned in the future. So:
+
+Clean nodes become weakened.
+Weakened nodes become infected.
+Infected nodes become flagged.
+Flagged nodes become clean.
+Every node is always in exactly one of the above states.
+
+The virus carrier still functions in a similar way, but now uses the following logic during its bursts of action:
+
+Decide which way to turn based on the current node:
+If it is clean, it turns left.
+If it is weakened, it does not turn, and will continue moving in the same direction.
+If it is infected, it turns right.
+If it is flagged, it reverses direction, and will go back the way it came.
+Modify the state of the current node, as described above.
+The virus carrier moves forward one node in the direction it is facing.
+Start with the same map (still using . for clean and # for infected) and still with the virus carrier starting in the middle and facing up.
+
+Using the same initial state as the previous example, and drawing weakened as W and flagged as F, the middle of the infinite grid looks like this, with the virus carrier's position again marked with [ ]:
+
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . # . . .
+. . . #[.]. . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+This is the same as before, since no initial nodes are weakened or flagged. The virus carrier is on a clean node, so it still turns left, instead weakens the node, and moves left:
+
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . # . . .
+. . .[#]W . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+The virus carrier is on an infected node, so it still turns right, instead flags the node, and moves up:
+
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . .[.]. # . . .
+. . . F W . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+This process repeats three more times, ending on the previously-flagged node and facing right:
+
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . W W . # . . .
+. . W[F]W . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+Finding a flagged node, it reverses direction and cleans the node:
+
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . W W . # . . .
+. .[W]. W . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+The weakened node becomes infected, and it continues in the same direction:
+
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . W W . # . . .
+.[.]# . W . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+Of the first 100 bursts, 26 will result in infection. Unfortunately, another feature of this evolved virus is speed; of the first 10000000 bursts, 2511944 will result in infection.
+
+Given your actual map, after 10000000 bursts of activity, how many bursts cause a node to become infected? (Do not count nodes that begin infected.)
+
 """
+
 
 class Virus:
     NORTH = ( 0,  1)
@@ -96,7 +183,7 @@ class Virus:
     DIRECTIONS = (NORTH, EAST, SOUTH, WEST)
 
     def __init__(self, grid):
-        self.infected = grid
+        self.grid = grid
         self.current = 0, 0
         self.direction = self.NORTH
         self.infections_count = 0
@@ -115,14 +202,14 @@ class Virus:
             self.burst()
 
     def _clean(self):
-        self.infected.remove(self.current)
+        del self.grid[self.current]
 
     def _infect(self):
         self.infections_count += 1
-        self.infected.add(self.current)
+        self.grid[self.current] = '#'
 
     def _is_infected(self):
-        return self.current in self.infected
+        return self.current in self.grid and self.grid[self.current] == '#'
 
     def _move(self):
         self.current = add_tuples(self.current, self.direction)
@@ -138,6 +225,43 @@ class Virus:
         self.direction = self.DIRECTIONS[left]
 
 
+class ResistentVirus(Virus):
+    WEAKEN = 'W'
+    INFECTED = '#'
+    FLAGGED = 'F'
+
+    def burst(self):
+        if self._is_clean():
+            self._turn_left()
+            self._weaken()
+        elif self._is_weakened():
+            self._infect()
+        elif self._is_infected():
+            self._turn_right()
+            self._flag()
+        else:
+            self._turn_around()
+            self._clean()
+
+        self._move()
+
+    def _flag(self):
+        self.grid[self.current] = self.FLAGGED
+
+    def _weaken(self):
+        self.grid[self.current] = self.WEAKEN
+
+    def _is_clean(self):
+        return self.current not in self.grid
+
+    def _is_weakened(self):
+        return self.current in self.grid and self.grid[self.current] == self.WEAKEN
+
+    def _turn_around(self):
+        self._turn_left()
+        self._turn_left()
+
+
 def add_tuples(*tuples):
     return tuple(map(sum, zip(*tuples)))
 
@@ -147,7 +271,7 @@ def read_input(filename):
     return lines
 
 def build_grid(lines):
-    grid = set()
+    grid = {}
 
     height = len(lines)
     width = len(lines[0])
@@ -159,7 +283,7 @@ def build_grid(lines):
         x = initial_x
         for char in line:
             if char == '#':
-                grid.add((x, y))
+                grid[x, y] = '#'
             x += 1
         y -= 1
 
@@ -175,8 +299,12 @@ def main():
     result = virus.infections_count
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+    grid = build_grid(puzzle_input)
+    resistent_virus = ResistentVirus(grid)
+    resistent_virus.simulate(10_000_000)
+
+    result = resistent_virus.infections_count
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
