@@ -88,33 +88,18 @@ Given your actual map, after 10000 bursts of activity, how many bursts cause a n
 
 """
 
-class Grid:
+class Virus:
     NORTH = ( 0,  1)
     SOUTH = ( 0, -1)
     EAST =  ( 1,  0)
     WEST =  (-1,  0)
     DIRECTIONS = (NORTH, EAST, SOUTH, WEST)
 
-    def __init__(self):
-        self.infected = set()
+    def __init__(self, grid):
+        self.infected = grid
         self.current = 0, 0
         self.direction = self.NORTH
         self.infections_count = 0
-
-    def parse(self, lines):
-        height = len(lines)
-        width = len(lines[0])
-        initial_x = -1 * (width // 2)
-        initial_y = height // 2
-
-        y = initial_y
-        for line in lines:
-            x = initial_x
-            for char in line:
-                if char == '#':
-                    self.infected.add((x, y))
-                x += 1
-            y -= 1
 
     def burst(self):
         if self._is_infected():
@@ -161,14 +146,33 @@ def read_input(filename):
         lines = [line.strip() for line in f]
     return lines
 
+def build_grid(lines):
+    grid = set()
+
+    height = len(lines)
+    width = len(lines[0])
+    initial_x = -1 * (width // 2)
+    initial_y = height // 2
+
+    y = initial_y
+    for line in lines:
+        x = initial_x
+        for char in line:
+            if char == '#':
+                grid.add((x, y))
+            x += 1
+        y -= 1
+
+    return grid
+
 def main():
     puzzle_input = read_input('input22.txt')
 
-    grid = Grid()
-    grid.parse(puzzle_input)
-    grid.simulate(10_000)
+    grid = build_grid(puzzle_input)
+    virus = Virus(grid)
+    virus.simulate(10_000)
 
-    result = grid.infections_count
+    result = virus.infections_count
     print('Part 1 solution:', result)
 
     # result =
