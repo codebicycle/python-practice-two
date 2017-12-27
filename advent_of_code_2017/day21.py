@@ -76,6 +76,9 @@ Thus, after 2 iterations, the grid contains 12 pixels that are on.
 
 How many pixels stay on after 5 iterations?
 
+--- Part Two ---
+How many pixels stay on after 18 iterations?
+
 """
 class Matrix:
     @classmethod
@@ -246,8 +249,10 @@ def main():
     result = fractal.count_lit()
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+    fractal = fractal_builder.build(puzzle_input)
+    fractal.iterate_multiple(times=18)
+    result = fractal.count_lit()
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
