@@ -106,7 +106,7 @@ class Matrix:
         return cls.flip(cls.transpose(matrix))
 
     @staticmethod
-    def split_matrices(matrix, length=2):
+    def split(matrix, length=2):
         """Split a square matrix into smaller sqare matrices of the given length
         matrix is a two-dimensional list
         """
@@ -122,6 +122,15 @@ class Matrix:
                 row.append(subarray)
             accumulator.append(row)
         return accumulator
+
+    @staticmethod
+    def merge(matrix):
+        new_matrix = []
+        for old_row in matrix:
+            for item in zip(*old_row):
+                new_row = tuple(el for tup in item for el in tup)
+                new_matrix.append(new_row)
+        return tuple(new_matrix)
 
 
 class FractalBuilder:
@@ -184,7 +193,43 @@ class Fractal:
         self.state = initial_state
 
     def iterate(self):
-        pass
+        split_length = self._get_split_length()
+        subarrays = Matrix.split(self.state, length=split_length)
+        updated = self._apply_rules(subarrays)
+        self.state = Matrix.merge(updated)
+
+    def iterate_multiple(self, times):
+        for _ in range(times):
+            self.iterate()
+
+    def _apply_rules(self, cells):
+        updated = cells.copy()
+        height = len(cells)
+        width = height
+        for y in range(height):
+            for x in range(width):
+                cell = tuple(cells[y][x])
+                updated[y][x] = self.rules[cell]
+        return updated
+
+    def count_lit(self):
+        count = 0
+        for row in self.state:
+            count += row.count(True)
+        return count
+
+    def _get_split_length(self):
+        if self._is_divisible_by_two():
+            split_length = 2
+        elif self._is_divisible_by_three():
+            split_length = 3
+        return split_length
+
+    def _is_divisible_by_two(self):
+        return len(self.state) % 2 == 0
+
+    def _is_divisible_by_three(self):
+        return len(self.state) % 3 == 0
 
 
 def read_input(filename):
@@ -197,10 +242,9 @@ def main():
 
     fractal_builder = FractalBuilder()
     fractal = fractal_builder.build(puzzle_input)
-
-    # result =
-    # print('Part 1 solution:', result)
-
+    fractal.iterate_multiple(times=5)
+    result = fractal.count_lit()
+    print('Part 1 solution:', result)
 
     # result =
     # print('Part 2 solution:', result)
