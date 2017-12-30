@@ -22,3 +22,24 @@ def test_bst_contains_for_inexisting_values():
     assert 99 not in bst
     assert 0 not in bst
     assert -1 not in bst
+
+
+def test_bst_remove():
+    bst = BinarySearchTree()
+    bst.add(5)
+    bst.add(6)
+    bst.add(1)
+    bst.add(4)
+    bst.add(3)
+    bst.remove(5)
+    assert 5 not in bst
+    assert bst.root.value == 4
+    bst.remove(3)
+    assert 3 not in bst
+    bst.remove(6)
+    assert 6 not in bst
+    bst.remove(1)
+    assert 1 not in bst
+    bst.remove(4)
+    assert 4 not in bst
+    assert bst.root is None
