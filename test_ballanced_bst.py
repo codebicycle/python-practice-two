@@ -1,19 +1,16 @@
+from balanced_bst import build_balanced_tree
 
-import unittest
-from ballanced_bst import *
 
-class BallancedTreeTest(unittest.TestCase):
-
-    def test_ballanced_tree_from_collection(self):
-        ordered = range(3, 13)
-        bt = ballanced_tree(ordered)
-        self.assertEqual( 7, bt.root.value)
-        self.assertEqual( 4, bt.root.left.value)
-        self.assertEqual(10, bt.root.right.value)
-        self.assertEqual( 3, bt.root.left.left.value)
-        self.assertEqual( 5, bt.root.left.right.value)
-        self.assertEqual( 6, bt.root.left.right.right.value)
-        self.assertEqual( 8, bt.root.right.left.value)
-        self.assertEqual( 9, bt.root.right.left.right.value)
-        self.assertEqual(11, bt.root.right.right.value)
-        self.assertEqual(12, bt.root.right.right.right.value)
+def test_ballanced_tree_from_collection():
+    ordered = range(3, 13)
+    bst = build_balanced_tree(ordered)
+    assert 7 == bst.root.value
+    assert 4 == bst.root.left.value
+    assert 10 == bst.root.right.value
+    assert 3 == bst.root.left.left.value
+    assert 5 == bst.root.left.right.value
+    assert 6 == bst.root.left.right.right.value
+    assert 8 == bst.root.right.left.value
+    assert 9 == bst.root.right.left.right.value
+    assert 11 == bst.root.right.right.value
+    assert 12 == bst.root.right.right.right.value
