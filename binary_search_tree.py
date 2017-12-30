@@ -21,18 +21,17 @@ class BinarySearchTree:
 
     def remove(self, value):
         if self.root:
-            self.root = self.remove_from_parent(self.root, value)
+            self.root = self._remove_from_subtree(self.root, value)
 
-    def remove_from_parent(self, parent, value):
+    def _remove_from_subtree(self, parent, value):
         if parent is None:
             return None
-
         if value == parent.value:
             return parent.delete()
         elif value < parent.value:
-            parent.left = self.remove_from_parent(parent.left, value)
+            parent.left = self._remove_from_subtree(parent.left, value)
         else:
-            parent.right = self.remove_from_parent(parent.right, value)
+            parent.right = self._remove_from_subtree(parent.right, value)
         return parent
 
     def __str__(self):
