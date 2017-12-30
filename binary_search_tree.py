@@ -38,6 +38,22 @@ class BinarySearchTree:
     def __str__(self):
         return str(self.root)
 
+    def inorder(self):
+        """In order traversal of elements from tree"""
+        if self.root:
+            return self.root.inorder()
+
+    def preorder(self):
+        if self.root:
+            return self.root.preorder()
+
+    def postorder(self):
+        if self.root:
+            return self.root.postorder()
+
+    def __iter__(self):
+        return self.inorder()
+
 
 class BinaryNode:
     def __init__(self, value=None):
@@ -82,3 +98,30 @@ class BinaryNode:
 
     def __repr__(self):
         return f'{self.value, self.left, self.right}'
+
+    def inorder(self):
+        if self.left:
+            for value in self.left.inorder():
+                yield value
+        yield self.value
+        if self.right:
+            for value in self.right.inorder():
+                yield value
+
+    def preorder(self):
+        yield self.value
+        if self.left:
+            for value in self.left.preorder():
+                yield value
+        if self.right:
+            for value in self.right.preorder():
+                yield value
+
+    def postorder(self):
+        if self.left:
+            for value in self.left.postorder():
+                yield value
+        if self.right:
+            for value in self.right.postorder():
+                yield value
+        yield self.value
