@@ -12,8 +12,7 @@ def merge_sort(collection):
     ordered = []
     i = 0
     j = 0
-
-    while True:
+    while len(ordered) < len(collection):
         if left[i] <= right[j]:
             ordered.append(left[i])
             i += 1
@@ -23,8 +22,6 @@ def merge_sort(collection):
 
         if i >= len(left):
             ordered.extend(right[j:])
-            break
         elif j >= len(right):
             ordered.extend(left[i:])
-            break
     return ordered
