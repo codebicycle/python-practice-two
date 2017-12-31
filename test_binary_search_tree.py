@@ -58,3 +58,17 @@ def test_bst_traversals():
     assert [1, 2, 3, 4, 5] == list(inorder)
     assert [4, 2, 1, 3, 5] == list(preorder)
     assert [1, 3, 2, 5, 4] == list(postorder)
+
+
+def test_bst_height():
+    bst = BinarySearchTree()
+    assert bst.height() == None
+    bst.add(5)
+    assert bst.height() == 0
+    bst.add(2)
+    bst.add(7)
+    assert bst.height() == 1
+    bst.add(8)
+    assert bst.height() == 2
+    bst.add(9)
+    assert bst.height() == 3

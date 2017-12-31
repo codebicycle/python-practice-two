@@ -53,6 +53,10 @@ class BinarySearchTree:
     def __iter__(self):
         return self.inorder()
 
+    def height(self):
+        if self.root:
+            return self.root.height()
+
 
 class BinaryNode:
     def __init__(self, value=None):
@@ -124,3 +128,13 @@ class BinaryNode:
             for value in self.right.postorder():
                 yield value
         yield self.value
+
+    def height(self):
+        if self.left is None and self.right is None:
+            return 0
+        if self.left is None:
+            return 1 + self.right.height()
+        if self.right is None:
+            return 1 + self.left.height()
+
+        return 1 + max(self.left.height(), self.right.height())
