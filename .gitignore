@@ -93,3 +93,4 @@ tmp/*
 !tmp/.keep
 
 .idea/
+secret.py
