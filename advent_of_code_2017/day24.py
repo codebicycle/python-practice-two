@@ -53,73 +53,27 @@ def make_adjacency_list(items):
         adjacency_list[b].add(item)
     return adjacency_list
 
-def build_bridge(adjacency_list):
-    max_score = 0
-    max_bridge = None
+def bridge_generator(adjacency_list, pins, bridge):
+    candidates = adjacency_list[pins] - set(bridge)
+    if not candidates:
+        yield bridge
 
-    def build(pins, bridge):
-        nonlocal max_score
-        nonlocal max_bridge
-        candidates = adjacency_list[pins] - set(bridge)
-        if not candidates:
-            return bridge
-
-        for candidate in candidates:
-            new_bridge = bridge + [candidate]
-            new_pins = get_free_end(candidate, pins)
-            new_bridge = build(new_pins, new_bridge)
-            if not new_bridge:
-                continue
-            new_score = score(new_bridge)
-            if new_score > max_score:
-                max_score = new_score
-                max_bridge = new_bridge
-        return max_bridge
-
-    initial_pins = 0
-    initial_bridge = []
-    build(initial_pins, initial_bridge)
-    return max_score, max_bridge
-
-def build_longest_bridge(adjacency_list):
-    max_score = 0
-    max_length = 0
-    longest_bridge = None
-
-    def build(pins, bridge):
-        nonlocal max_score
-        nonlocal max_length
-        nonlocal longest_bridge
-        candidates = adjacency_list[pins] - set(bridge)
-        if not candidates:
-            return bridge
-
-        for candidate in candidates:
-            new_bridge = bridge + [candidate]
-            new_pins = get_free_end(candidate, pins)
-            new_bridge = build(new_pins, new_bridge)
-            if not new_bridge:
-                continue
-            new_length = len(new_bridge)
-            new_score = score(new_bridge)
-            if (new_length, new_score) > (max_length, max_score):
-                max_length = new_length
-                longest_bridge = new_bridge
-                max_score = new_score
-        return longest_bridge
-
-    initial_pins = 0
-    initial_bridge = []
-    build(initial_pins, initial_bridge)
-    return max_score, longest_bridge
-
-def score(bridge):
-    return sum(end for component in bridge for end in component)
+    for candidate in candidates:
+        new_bridge = bridge + [candidate]
+        new_pins = get_free_end(candidate, pins)
+        yield from bridge_generator(adjacency_list, new_pins, new_bridge)
 
 def get_free_end(component, used_end):
     if component[0] == used_end:
         return component[1]
     return component[0]
+
+def get_strength(bridge):
+    return sum(end for component in bridge for end in component)
+
+def length_strength(bridge):
+    """Return tuple containing the length and strength of the given bridge."""
+    return len(bridge), get_strength(bridge)
 
 def read_input(filename):
     with open(filename) as f:
@@ -131,11 +85,18 @@ def main():
     components = read_input('input24.txt')
     adjacency_list = make_adjacency_list(components)
 
-    max_score, max_bridge = build_bridge(adjacency_list)
-    print('Part 1 solution:', max_score)
+    initial_pins = 0
+    initial_bridge = []
+    generator =  bridge_generator(adjacency_list, initial_pins , initial_bridge)
+    bridges = list(generator)
 
-    max_score, _ = build_longest_bridge(adjacency_list)
-    print('Part 2 solution:', max_score)
+    strongest = max(bridges, key=get_strength)
+    strength = get_strength(strongest)
+    print('Part 1 solution:', strength)
+
+    longest_and_strongest = max(bridges, key=length_strength)
+    strength = get_strength(longest_and_strongest)
+    print('Part 2 solution:', strength)
 
 
 if __name__ == '__main__':
