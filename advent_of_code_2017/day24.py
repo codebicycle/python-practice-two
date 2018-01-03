@@ -81,6 +81,38 @@ def build_bridge(adjacency_list):
     build(initial_pins, initial_bridge)
     return max_score, max_bridge
 
+def build_longest_bridge(adjacency_list):
+    max_score = 0
+    max_length = 0
+    longest_bridge = None
+
+    def build(pins, bridge):
+        nonlocal max_score
+        nonlocal max_length
+        nonlocal longest_bridge
+        candidates = adjacency_list[pins] - set(bridge)
+        if not candidates:
+            return bridge
+
+        for candidate in candidates:
+            new_bridge = bridge + [candidate]
+            new_pins = get_free_end(candidate, pins)
+            new_bridge = build(new_pins, new_bridge)
+            if not new_bridge:
+                continue
+            new_length = len(new_bridge)
+            new_score = score(new_bridge)
+            if (new_length, new_score) > (max_length, max_score):
+                max_length = new_length
+                longest_bridge = new_bridge
+                max_score = new_score
+        return longest_bridge
+
+    initial_pins = 0
+    initial_bridge = []
+    build(initial_pins, initial_bridge)
+    return max_score, longest_bridge
+
 def score(bridge):
     return sum(end for component in bridge for end in component)
 
@@ -102,8 +134,8 @@ def main():
     max_score, max_bridge = build_bridge(adjacency_list)
     print('Part 1 solution:', max_score)
 
-    # result =
-    # print('Part 2 solution:', result)
+    max_score, _ = build_longest_bridge(adjacency_list)
+    print('Part 2 solution:', max_score)
 
 
 if __name__ == '__main__':
