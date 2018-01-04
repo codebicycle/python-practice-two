@@ -14,6 +14,17 @@ The coprocessor is currently set to some kind of debug mode, which allows for te
 
 If you run the program (your puzzle input), how many times is the mul instruction invoked?
 
+--- Part Two ---
+Now, it's time to fix the problem.
+
+The debug mode switch is wired directly to register a. You flip the switch, which makes register a now start at 1 when the program is executed.
+
+Immediately, the coprocessor begins to overheat. Whoever wrote this program obviously didn't choose a very efficient implementation. You'll need to optimize the program if it has any hope of completing before Santa needs that printer working.
+
+The coprocessor's ultimate goal is to determine the final value left in register h once the program completes. Technically, if it had that... it wouldn't even need to run the program.
+
+After setting register a to 1, if the program were to run to completion, what value would be left in register h?
+
 """
 
 
@@ -102,6 +113,122 @@ class InstructionParser():
         return instructions
 
 
+def run():
+    """Rewrite puzzle input as a python program.
+    Return the value of the h register.
+
+    Use if statements for forward jumps
+    and 'do while' constructs for backward jumps.
+
+    'do while' emulation in Python:
+    while True:
+        stuff()
+        if fail_condition:
+            break
+
+    Inline consecutive g register updates.
+
+    a = 1
+    b = c = d = e = f = g = h = 0
+
+    b = 99
+    c = b
+    if a != 0:
+        b *= 100
+        b += 100_000
+        c = b
+        c += 17_000
+    while True:
+        f = 1
+        d = 2
+        while True:
+            e = 2
+            while True:
+                g = d * e - b
+                if g == 0:
+                    f = 0
+                e += 1
+                g = e - b
+                if g == 0:
+                    break
+            d += 1
+            g = d - b
+            if g == 0:
+                break
+        if f == 0:
+            h += 1
+        g = b - c
+        if g == 0:
+            return h
+        b += 17
+
+    At this state register g is used only in break conditions.
+    Rewrite conditions and eliminate g.
+
+    a = 1
+    b = c = d = e = f = g = h = 0
+
+    b = 99
+    c = b
+    if a != 0:
+        b *= 100
+        b += 100_000
+        c = b
+        c += 17_000
+    while True:
+        f = 1
+        d = 2
+        while True:
+            e = 2
+            while True:
+                if d * e - b == 0:
+                    f = 0
+                e += 1
+                if e == b:
+                    break
+            d += 1
+            if d == b:
+                break
+        if f == 0:
+            h += 1
+        if b == c:
+            return h
+        b += 17
+
+    Register b never decreases and starts at 99.
+    In the inner loops registers d and e initialized with the value 2
+    are incremented until they reach the value of b.
+    If d * e == b the f register is reset. The f register is not reset
+    if b is prime (not divisible by any number from 2 to its value minus one).
+
+    Rewrite the prime-checking code with a more efficient version.
+    """
+    a = 1
+    b = c = d = e = f = g = h = 0
+
+    b = 99
+    c = b
+    if a != 0:
+        b *= 100
+        b += 100_000
+        c = b
+        c += 17_000
+    while True:
+        f = 1
+        if not is_prime(b):
+            f = 0
+        if f == 0:
+            h += 1
+        if b == c:
+            return h
+        b += 17
+
+def is_prime(n):
+    for i in range(2, n//2):
+        if n % i == 0:
+            return False
+    return True
+
 def read_input(filename):
     with open(filename) as f:
         puzzle_input = f.readlines()
@@ -117,10 +244,9 @@ def main():
     result = cpu.mul_count
     print('Part 1 solution:', result)
 
-    # result =
-    # print('Part 2 solution:', result)
+    result = run()
+    print('Part 2 solution:', result)
 
 
 if __name__ == '__main__':
     main()
-
