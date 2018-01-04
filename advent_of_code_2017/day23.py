@@ -159,8 +159,9 @@ def run():
             h += 1
         g = b - c
         if g == 0:
-            return h
+            break
         b += 17
+    return h
 
     At this state register g is used only in break conditions.
     Rewrite conditions and eliminate g.
@@ -192,8 +193,9 @@ def run():
         if f == 0:
             h += 1
         if b == c:
-            return h
+            break
         b += 17
+    return h
 
     Register b never decreases and starts at 99.
     In the inner loops registers d and e initialized with the value 2
@@ -220,8 +222,9 @@ def run():
         if f == 0:
             h += 1
         if b == c:
-            return h
+            break
         b += 17
+    return h
 
 def is_prime(n):
     for i in range(2, n//2):
