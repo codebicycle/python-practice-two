@@ -31,11 +31,7 @@ def fibonacci_three(n, cache={}):
     """Fibonacci mutable default argument cache"""
     if n < 2:
         return n
-
     if n in cache:
         return cache[n]
-
-    prev = cache.get(n-1, fibonacci_three(n-1))
-    preprev = cache.get(n-2, fibonacci_three(n-2))
-    cache[n] = prev + preprev
+    cache[n] = fibonacci_three(n-1, cache) + fibonacci_three(n-2, cache)
     return cache[n]
