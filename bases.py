@@ -27,33 +27,52 @@ def is_valid(representation, base, alphabet=ALPHABET):
 
 
 def to_decimal(representation, base, alphabet=ALPHABET):
+    """Convert the string representation of a number in a given base
+    to decimal.
+
+    representation: string representation of a number in a given base
+    base: the base of the input representation
+    alphabet: sequence of characters representing digits (and letters)
+    in their corresponding possition e.g. for base 16 '0123456789abcdef'
+    Returns an integer in base 10
+    """
     assert 2 <= base <= len(alphabet)
 
     if not is_valid(representation, base, alphabet):
-        raise ValueError('"{}" is not a valid base {} representation!'.format(representation, base))
+        raise ValueError(f'"{representation}" is not a valid base {base} representation!')
 
-    result = 0
+    decimal = 0
     multiplier = 1
 
-    for char in representation[::-1]:
-        result += alphabet.index(char) * multiplier
+    for char in reversed(representation):
+        decimal += alphabet.index(char) * multiplier
         multiplier *= base
-    return result
+    return decimal
 
 
 def to_base(decimal, base, alphabet=ALPHABET):
+    """Convert from decimal to the given base
+
+    decimal: positive base 10 integer to be converted
+    base: the base to be converted to
+    alphabet: sequence of characters representing digits (and letters)
+    in their corresponding possition e.g. for base 16 '0123456789abcdef'
+    Returns the string representation of the decimal in the given base.
+    """
     assert 2 <= base <= len(alphabet)
+    assert decimal >= 0
 
     if decimal == 0:
         return '0'
 
-    representation = ''
-
+    stack = []
     while decimal > 0:
         remainder = decimal % base
-        representation = alphabet[remainder] + representation
-        decimal //= base
+        stack.append(alphabet[remainder])
+        decimal =  decimal // base
 
+    # representation = ''.join([stack.pop() for _ in stack])
+    representation = ''.join(reversed(stack))
     return representation
 
 
@@ -63,19 +82,19 @@ def print_all_numbers(*, base, digits=2):
     representations = (''.join(item) for item in cartesian_product)
 
     for representation in representations:
-        print('{}    {}'.format(representation, to_decimal(representation, base)))
+        print(f'{representation}    {to_decimal(representation, base)}')
 
 
 def main():
 
     print('Base 16 to decimal')
     for representation in (x+x for x in ALPHABET[:16]):
-        print('{}    {}'.format(representation, to_decimal(representation, 16)))
+        print(f'{representation}    {to_decimal(representation, 16)}')
 
     print()
     print('Decimal to Base 62')
-    for nr in (10**i for i in range(10)):
-        print('{:>13,d}     {}'.format(nr, to_base(nr, 62)))
+    for num in (10**i for i in range(10)):
+        print(f'{num:>13,d}     {to_base(num, 62)}')
 
 
 if __name__ == '__main__':
