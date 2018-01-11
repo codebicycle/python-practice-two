@@ -35,3 +35,27 @@ def fibonacci_three(n, cache={}):
         return cache[n]
     cache[n] = fibonacci_three(n-1, cache) + fibonacci_three(n-2, cache)
     return cache[n]
+
+
+memo = {}
+def fibonacci(n):
+    """Recursive dynamic programming algorithm"""
+    if n in memo:
+        return memo[n]
+    if n < 2:
+        result = n
+    else:
+        result = fibonacci(n-1) + fibonacci(n-2)
+    memo[n] = result
+    return result
+
+fib = {}
+def fibonacci_four(n):
+    """Bottom-up dynamic programming algorithm"""
+    for k in range(n+1):
+        if k < 2:
+            result = k
+        else:
+            result = fib[k-1] + fib[k-2]
+        fib[k] = result
+    return fib[n]
