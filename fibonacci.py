@@ -38,19 +38,19 @@ def fibonacci_three(n, cache={}):
 
 
 memo = {}
-def fibonacci(n):
+def fibonacci_four(n):
     """Recursive dynamic programming algorithm"""
     if n in memo:
         return memo[n]
     if n < 2:
         result = n
     else:
-        result = fibonacci(n-1) + fibonacci(n-2)
+        result = fibonacci_four(n-1) + fibonacci_four(n-2)
     memo[n] = result
     return result
 
 fib = {}
-def fibonacci_four(n):
+def fibonacci_five(n):
     """Bottom-up dynamic programming algorithm"""
     for k in range(n+1):
         if k < 2:
@@ -59,3 +59,22 @@ def fibonacci_four(n):
             result = fib[k-1] + fib[k-2]
         fib[k] = result
     return fib[n]
+
+
+def fibonacci(n):
+    """Nth Fibonacci number
+    Constant space solution.
+    """
+    a = 0
+    b = 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a
+
+def fibonacci_generator():
+    """Generate the Fibonacci sequence"""
+    a = 0
+    b = 1
+    while True:
+        yield a
+        a, b = b, a + b
