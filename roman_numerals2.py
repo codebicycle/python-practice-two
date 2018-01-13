@@ -20,3 +20,9 @@ def to_roman(n):
     n must be an integer in the range 1-3999.
     Returns the roman numeral notation as a string.
     """
+    roman_representation = ''
+    for roman, integer in roman_numeral_map:
+        while n >= integer:
+            roman_representation += roman
+            n -= integer
+    return roman_representation
