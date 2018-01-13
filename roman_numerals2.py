@@ -36,5 +36,13 @@ def to_roman(n):
     return roman_representation
 
 
-def from_roman(roman_representation):
+def from_roman(roman_numeral):
     """Convert roman to arab numeral."""
+    result = 0
+    index = 0
+    while index < len(roman_numeral):
+        for roman, integer in roman_numeral_map:
+            if roman_numeral[index:index+len(roman)] == roman:
+                result += integer
+                index += len(roman)
+    return result
