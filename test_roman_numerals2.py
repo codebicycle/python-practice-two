@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from roman_numerals2 import to_roman
+from roman_numerals2 import to_roman, OutOfRangeError
 
 HERE = os.path.dirname(__file__)
 
@@ -37,3 +37,12 @@ def test_to_roman_exhaustive(decimal_roman):
     for row in decimal_roman:
         decimal = int(row['decimal'])
         assert row['roman'] == to_roman(decimal)
+
+
+def test_to_roman_raises_exception_for_out_of_range_integers():
+    with pytest.raises(OutOfRangeError):
+        to_roman(4000)
+    with pytest.raises(OutOfRangeError):
+        to_roman(0)
+    with pytest.raises(OutOfRangeError):
+        to_roman(-1)
