@@ -1,11 +1,22 @@
-ARABIC_NUMERALS = (1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
-ROMAN_NUMERALS = ('M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I')
+roman_numeral_map = (
+    ('M', 1000),
+    ('CM', 900),
+    ('D', 500),
+    ('CD', 400),
+    ('C', 100),
+    ('XC', 90),
+    ('L', 50),
+    ('XL', 40),
+    ('X', 10),
+    ('IX', 9),
+    ('V', 5),
+    ('IV', 4),
+    ('I', 1),
+)
 
-def roman(number):
-    roman_str = ''
-    for i in range(len(ARABIC_NUMERALS)):
-        while number >= ARABIC_NUMERALS[i]:
-            roman_str += ROMAN_NUMERALS[i]
-            number -= ARABIC_NUMERALS[i]
+def to_roman(n):
+    """Convert arab numeral to roman.
 
-    return roman_str
+    n must be an integer in the range 1-3999.
+    Returns the roman numeral notation as a string.
+    """
