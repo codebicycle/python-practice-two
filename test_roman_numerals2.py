@@ -41,7 +41,7 @@ def test_to_roman_exhaustive(decimal_roman):
 
 def test_to_roman_raises_exception_for_out_of_range_integers():
     with pytest.raises(OutOfRangeError):
-        to_roman(4000)
+        to_roman(5000)
 
     with pytest.raises(OutOfRangeError):
         to_roman(0)
@@ -61,11 +61,11 @@ def test_to_roman_raises_exception_for_non_integers():
 
 
 def test_from_roman_good_values():
-    for n in range(1, 4000):
+    for n in range(1, 5000):
         assert n == from_roman(to_roman(n))
 
 def test_from_roman_raises_exception_on_invalid_repeated_numerals():
-    for roman in ('MMMM', 'DD', 'CCCC', 'LL', 'XXXX', 'VV', 'IIII'):
+    for roman in ('MMMMM', 'DD', 'CCCC', 'LL', 'XXXX', 'VV', 'IIII'):
         with pytest.raises(InvalidRomanNumeralError):
             from_roman(roman)
 
