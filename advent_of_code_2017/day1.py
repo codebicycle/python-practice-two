@@ -39,10 +39,7 @@ For example:
 What is the solution to your new captcha?
 
 """
-
-
 def solve_captcha(puzzle_input):
-    puzzle_input = str(puzzle_input)
     puzzle_input += puzzle_input[0]
     sum = 0
     for i in range(len(puzzle_input) - 1):
@@ -50,21 +47,15 @@ def solve_captcha(puzzle_input):
             sum += int(puzzle_input[i])
     return sum
 
-
 def solve_captcha_circular(puzzle_input):
-    puzzle_input = str(puzzle_input)
     middle = len(puzzle_input) // 2
     first_half = puzzle_input[:middle]
     second_half = puzzle_input[middle:]
-
     sum = 0
-
     for i in range(len(first_half)):
         if first_half[i] == second_half[i]:
             sum += 2 * int(first_half[i])
-
     return sum
-
 
 def read_input(filename):
     with open(filename) as f:
