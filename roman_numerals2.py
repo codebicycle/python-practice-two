@@ -17,7 +17,7 @@ ROMAN_NUMERAL_PATTERN = re.compile('''
     $                   # end of string
     ''', re.VERBOSE)
 
-roman_numeral_map = (
+ROMAN_NUMERAL_MAP = (
     ('M', 1000),
     ('CM', 900),
     ('D', 500),
@@ -34,18 +34,18 @@ roman_numeral_map = (
 )
 
 def to_roman(n):
-    """Convert arab numeral to roman.
+    """Convert arab numeral to roman
 
     n must be an integer in the range 1-3999.
-    Returns the roman numeral notation as a string.
+    Returns the roman numeral as a string.
     """
     if not isinstance(n, int):
         raise NotIntegerError('Expected and integer.')
     if not (0 < n <= 3999):
-        raise OutOfRangeError('Expected an integer in the range 1-3999.')
+        raise OutOfRangeError(f'Expected an integer in the range 1-3999, got {n}.')
 
     result = ''
-    for roman, integer in roman_numeral_map:
+    for roman, integer in ROMAN_NUMERAL_MAP:
         while n >= integer:
             result += roman
             n -= integer
@@ -53,14 +53,14 @@ def to_roman(n):
 
 
 def from_roman(roman_numeral):
-    """Convert roman to arab numeral."""
+    """Convert roman to arab numeral"""
     if not ROMAN_NUMERAL_PATTERN.search(roman_numeral):
-        raise InvalidRomanNumeralError('Invalid roman numeral.')
+        raise InvalidRomanNumeralError(f'Invalid roman numeral: {roman_numeral}.')
 
     result = 0
     index = 0
     while index < len(roman_numeral):
-        for roman, integer in roman_numeral_map:
+        for roman, integer in ROMAN_NUMERAL_MAP:
             if roman_numeral[index:index+len(roman)] == roman:
                 result += integer
                 index += len(roman)
