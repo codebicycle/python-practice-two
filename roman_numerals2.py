@@ -1,3 +1,5 @@
+class OutOfRangeError(ValueError): pass
+
 roman_numeral_map = (
     ('M', 1000),
     ('CM', 900),
@@ -20,6 +22,9 @@ def to_roman(n):
     n must be an integer in the range 1-3999.
     Returns the roman numeral notation as a string.
     """
+    if not (0 < n <= 3999):
+        raise OutOfRangeError('Expected an integer in the range 1-3999.')
+
     roman_representation = ''
     for roman, integer in roman_numeral_map:
         while n >= integer:
