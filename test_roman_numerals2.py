@@ -3,7 +3,8 @@ import os
 
 import pytest
 
-from roman_numerals2 import to_roman, OutOfRangeError, NotIntegerError
+from roman_numerals2 import (to_roman, OutOfRangeError, NotIntegerError,
+                             from_roman)
 
 HERE = os.path.dirname(__file__)
 
@@ -57,3 +58,8 @@ def test_to_roman_raises_exception_for_non_integers():
 
     with pytest.raises(NotIntegerError):
         to_roman('0.5')
+
+
+def test_from_roman_good_values():
+    for n in range(1, 4000):
+        assert n == from_roman(to_roman(n))

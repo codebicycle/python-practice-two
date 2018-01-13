@@ -34,3 +34,7 @@ def to_roman(n):
             roman_representation += roman
             n -= integer
     return roman_representation
+
+
+def from_roman(roman_representation):
+    """Convert roman to arab numeral."""
