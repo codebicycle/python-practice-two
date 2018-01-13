@@ -7,7 +7,7 @@ class InvalidRomanNumeralError(ValueError): pass
 
 ROMAN_NUMERAL_PATTERN = re.compile('''
     ^                   # beginning of string
-    M{0,3}              # thousands - 0 to 3 Ms
+    M{0,4}              # thousands - 0 to 4 Ms
     (CM|CD|D?C{0,3})    # hundreds - 900 (CM), 400 (CD), 0-300 (0 to 3 Cs),
                         #            or 500-800 (D, followed by 0 to 3 Cs)
     (XC|XL|L?X{0,3})    # tens - 90 (XC), 40 (XL), 0-30 (0 to 3 Xs),
@@ -36,13 +36,13 @@ ROMAN_NUMERAL_MAP = (
 def to_roman(n):
     """Convert arab numeral to roman
 
-    n must be an integer in the range 1-3999.
+    n must be an integer in the range 1-4999.
     Returns the roman numeral as a string.
     """
     if not isinstance(n, int):
         raise NotIntegerError('Expected and integer.')
-    if not (0 < n <= 3999):
-        raise OutOfRangeError(f'Expected an integer in the range 1-3999, got {n}.')
+    if not (0 < n <= 4999):
+        raise OutOfRangeError(f'Expected an integer in the range 1-4999, got {n}.')
 
     result = ''
     for roman, integer in ROMAN_NUMERAL_MAP:
