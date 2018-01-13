@@ -28,12 +28,12 @@ def to_roman(n):
     if not (0 < n <= 3999):
         raise OutOfRangeError('Expected an integer in the range 1-3999.')
 
-    roman_representation = ''
+    result = ''
     for roman, integer in roman_numeral_map:
         while n >= integer:
-            roman_representation += roman
+            result += roman
             n -= integer
-    return roman_representation
+    return result
 
 
 def from_roman(roman_numeral):
