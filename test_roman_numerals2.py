@@ -80,3 +80,7 @@ def test_from_roman_raises_exception_invalid_antecedents():
             'MCMC', 'XCX', 'IVI', 'LM', 'LD', 'LC'):
         with pytest.raises(InvalidRomanNumeralError):
             from_roman(roman)
+
+def test_from_roman_raises_exception_on_blank_input():
+        with pytest.raises(InvalidRomanNumeralError):
+            from_roman('')
