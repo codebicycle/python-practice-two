@@ -54,6 +54,8 @@ def to_roman(n):
 
 def from_roman(roman_numeral):
     """Convert roman to arab numeral"""
+    if not roman_numeral:
+        raise InvalidRomanNumeralError('Input can not be blank.')
     if not ROMAN_NUMERAL_PATTERN.search(roman_numeral):
         raise InvalidRomanNumeralError(f'Invalid roman numeral: {roman_numeral}.')
 
