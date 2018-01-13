@@ -4,7 +4,7 @@ import os
 import pytest
 
 from roman_numerals2 import (to_roman, OutOfRangeError, NotIntegerError,
-                             from_roman)
+                             from_roman, InvalidRomanNumeralError)
 
 HERE = os.path.dirname(__file__)
 
@@ -63,3 +63,20 @@ def test_to_roman_raises_exception_for_non_integers():
 def test_from_roman_good_values():
     for n in range(1, 4000):
         assert n == from_roman(to_roman(n))
+
+def test_from_roman_raises_exception_on_invalid_repeated_numerals():
+    for roman in ('MMMM', 'DD', 'CCCC', 'LL', 'XXXX', 'VV', 'IIII'):
+        with pytest.raises(InvalidRomanNumeralError):
+            from_roman(roman)
+
+def test_from_roman_raises_exception_on_invalid_pairs():
+    for roman in ('CMCM', 'CDCD', 'XCXC', 'XLXL', 'IXIX', 'IVIV'):
+        with pytest.raises(InvalidRomanNumeralError):
+            from_roman(roman)
+
+def test_from_roman_raises_exception_invalid_antecedents():
+    for roman in (
+            'IIMXCC', 'VX', 'DCM', 'CMM', 'IXIV',
+            'MCMC', 'XCX', 'IVI', 'LM', 'LD', 'LC'):
+        with pytest.raises(InvalidRomanNumeralError):
+            from_roman(roman)
