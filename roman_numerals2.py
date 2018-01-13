@@ -1,4 +1,5 @@
 class OutOfRangeError(ValueError): pass
+class NotIntegerError(ValueError): pass
 
 roman_numeral_map = (
     ('M', 1000),
@@ -22,6 +23,8 @@ def to_roman(n):
     n must be an integer in the range 1-3999.
     Returns the roman numeral notation as a string.
     """
+    if not isinstance(n, int):
+        raise NotIntegerError('Expected and integer.')
     if not (0 < n <= 3999):
         raise OutOfRangeError('Expected an integer in the range 1-3999.')
 
