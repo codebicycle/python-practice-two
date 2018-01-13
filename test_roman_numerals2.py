@@ -81,6 +81,13 @@ def test_from_roman_raises_exception_invalid_antecedents():
         with pytest.raises(InvalidRomanNumeralError):
             from_roman(roman)
 
+def test_from_roman_raises_exception_on_non_string_input():
+    with pytest.raises(InvalidRomanNumeralError):
+        from_roman(1.0)
+
+    with pytest.raises(InvalidRomanNumeralError):
+        from_roman(10)
+
 def test_from_roman_raises_exception_on_blank_input():
         with pytest.raises(InvalidRomanNumeralError):
             from_roman('')
