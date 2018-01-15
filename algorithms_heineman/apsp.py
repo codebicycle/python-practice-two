@@ -20,25 +20,40 @@ dicts of vertex: weight pairs.
 
 from pprint import pprint
 
-def build_adjacency_matrix(graph):
+def build_matrices(graph):
+    """Build adjacency matrix and predecessors matrix"""
     adjacency = {}
+    predecessors = {}
     for v1 in graph:
         for v2 in graph:
             if v1 == v2:
-                value = 0
+                cost = 0
+                predecessor = None
             elif v2 in graph[v1]:
-                value = graph[v1][v2]
+                cost = graph[v1][v2]
+                predecessor = v1
             else:
-                value = float('inf')
-            adjacency[v1, v2] = value
-    return adjacency
+                cost = float('inf')
+                predecessor = None
+            adjacency[v1, v2] = cost
+            predecessors[v1, v2] = predecessor
+    return adjacency, predecessors
 
-def lowest_cost(graph, start, finish):
-    distance = all_pairs_lowest_cost(graph)
-    return distance[start, finish]
+def shortest_path(graph, start, finish):
+    distance, predecessors = all_pairs_shortest_path(graph)
+    path = _build_path(predecessors, start, finish)
+    return distance[start, finish], path
 
-def all_pairs_lowest_cost(graph):
-    distance = build_adjacency_matrix(graph)
+def _build_path(predecessors, start, finish):
+    path_backwards = []
+    predecessor = finish
+    while predecessor is not None:
+        path_backwards.append(predecessor)
+        predecessor = predecessors[start, predecessor]
+    return list(reversed(path_backwards))
+
+def all_pairs_shortest_path(graph):
+    distance, predecessors = build_matrices(graph)
 
     for vertex in graph:
         for pair in distance:
@@ -48,7 +63,8 @@ def all_pairs_lowest_cost(graph):
             cost_through_vertex = distance[v1, vertex] + distance[vertex, v2]
             if distance[pair] > cost_through_vertex:
                 distance[pair] = cost_through_vertex
-    return distance
+                predecessors[pair] = predecessors[vertex, v2]
+    return distance, predecessors
 
 
 def main():
@@ -62,8 +78,10 @@ def main():
 
     start = 2
     finish = 3
-    cost = lowest_cost(graph, start, finish)
-    print(f'The lowest cost path between vertex {start} and {finish} has a cost of {cost}.')
+    cost, path = shortest_path(graph, start, finish)
+    print(f'The shortest path (lowest cost path) between vertices {start} and {finish} is {path}'
+          f' and its cost is {cost}.')
+
 
 if __name__ == '__main__':
     main()
