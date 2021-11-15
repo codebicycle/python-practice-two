@@ -38,6 +38,15 @@ def combine(list_a, list_b):
                 yield x, y
 
 
+def read_input():
+    arr = []
+    k, m = (int(x) for x in input().strip().split())
+    for _ in range(k):
+        row = tuple(int(x) for x in input().strip().split())
+        arr.append(row[1:])
+    return tuple(arr), m
+
+
 if __name__ == '__main__':
     m = 1000
     arr = [(5, 4), (7, 8, 9), (5, 7, 8, 9, 10)]
