@@ -6,7 +6,8 @@ def gridChallenge(grid):
 
 def transpose(arr):
     transposed = []
-    for idx in range(len(arr)):
+    first = arr[0]
+    for idx in range(len(first)):
         new_row = ''
         for row in arr:
             new_row += row[idx]

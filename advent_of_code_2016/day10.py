@@ -105,7 +105,7 @@ def traverse(lines):
             high_id = match.group(3)
 
             sender = Bot.get_or_create_bot(sender_id)
-            if not sender.is_valid():
+            if not sender.is_valid_checksum():
                 continue
 
             if sender.low == 17 and sender.high == 61:
